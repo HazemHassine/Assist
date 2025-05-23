@@ -1,0 +1,17 @@
+# .gitignore
+
+# Node/Electron
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+*.log
+
+# Python
+backend/venv/
+backend/.env
+__pycache__/
+*.pyc
+
+# General
+.DS_Store
+.env

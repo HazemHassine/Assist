@@ -14,4 +14,20 @@ __pycache__/
 
 # General
 .DS_Store
-.env
+*.env
+
+# Python virtual environment
+glob_env/
+
+# Sensitive data
+credentials.json
+**/*/credentials.json
+backend/client_secret_*.json
+client_secret_*.json
+notebooks/token.json
+
+# Data
+notebooks/preprocessed
+vault/
+data/
+notebooks/data/

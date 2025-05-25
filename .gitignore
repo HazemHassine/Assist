@@ -31,3 +31,4 @@ notebooks/preprocessed
 vault/
 data/
 notebooks/data/
+notebooks/chroma_db

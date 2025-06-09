@@ -107,9 +107,6 @@ function TreeNode({
   onCreate,
   onRename,
   onDelete,
-  // onMove, // onMove will be used for DnD
-}) {
-  onDelete,
   onMove,
 }) {
   const [isExpanded, setIsExpanded] = useState(false)

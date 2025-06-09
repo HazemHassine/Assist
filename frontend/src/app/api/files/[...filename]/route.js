@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import fs from 'fs/promises';
 import path from 'path'; // Import path module
-import { getValidatedPath } from '../../../lib/fs-utils.js';
+import { getValidatedPath } from '../../../../lib/fs-utils.js';
 
 // BACKEND_API_URL is removed as neither GET nor PUT will use it.
 

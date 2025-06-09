@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import fs from 'fs/promises';
 import path from 'path';
-import { getValidatedPath, BASE_PATH } from '../../../lib/fs-utils.js'; // Assuming fs-utils is in src/lib
+import { getValidatedPath, BASE_PATH } from '../../../../lib/fs-utils.js'; // Corrected path
 
 export async function POST(request) {
   try {

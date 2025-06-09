@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import fs from 'fs/promises';
-import { getValidatedPath, BASE_PATH } from '../../../lib/fs-utils.js'; // Adjust path as needed
+import { getValidatedPath, BASE_PATH } from '../../../../lib/fs-utils.js'; // Corrected path
 
 export async function DELETE(request, { params }) {
   try {

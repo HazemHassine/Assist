@@ -109,3 +109,55 @@
 .prose em {
   @apply text-gray-200;
 }
+
+/* Styles for react-resizable-panels Handle */
+.resize-handle-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  border: none; /* Or a subtle border */
+  background-color: transparent; /* Or a very subtle color */
+  /* transition for background color if needed */
+  /* transition: background-color 0.2s ease-in-out; */
+}
+
+.resize-handle-outer[data-orientation="horizontal"] {
+  width: 12px; /* Increased width for easier grabbing */
+  cursor: ew-resize;
+}
+
+.resize-handle-outer[data-orientation="vertical"] {
+  height: 12px; /* Increased height for easier grabbing */
+  cursor: ns-resize;
+}
+
+.resize-handle-inner {
+  width: 2px; /* Width of the visible line */
+  height: 24px; /* Height of the visible line for horizontal handles */
+  background-color: #374151; /* gray-700, adjust as needed */
+  border-radius: 1px;
+  /* transition for background color for hover effect */
+  transition: background-color 0.2s ease-in-out;
+}
+
+.resize-handle-outer[data-orientation="vertical"] .resize-handle-inner {
+  width: 24px; /* Width of the visible line for vertical handles */
+  height: 2px; /* Height of the visible line */
+}
+
+.resize-handle-outer:hover .resize-handle-inner {
+  background-color: #4b5563; /* gray-600, adjust hover color */
+}
+
+/* Remove default panel resize handle styling if it was applied through tailwind previously */
+/* For example, if you had something like this in page.js: className="w-1 bg-gray-800 hover:bg-gray-700 transition-colors" */
+/* You might not need this if the new classes completely override or if the old classes were removed */
+/*
+.w-1.bg-gray-800.hover\\:bg-gray-700.transition-colors {
+  background-color: transparent !important; / Overriding previous inline/tailwind styles /
+}
+.w-1.bg-gray-800.hover\\:bg-gray-700.transition-colors:hover .resize-handle-inner {
+   / Ensure hover on outer still colors inner if needed, or manage hover on .resize-handle-outer directly /
+}
+*/

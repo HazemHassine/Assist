@@ -5,8 +5,9 @@ import { FileExplorer } from "@/components/file-explorer"
 import FileEditor from "@/components/file-editor"
 import { MarkdownPreview } from "@/components/markdown-preview"
 import { Button } from "@/components/ui/button"
-import { FolderOpen } from "lucide-react"
+import { FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react" // Re-adding PanelLeftClose and PanelLeftOpen
 import { ToastContainer, toast, Bounce } from 'react-toastify'
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
 const encodePath = (path) =>
   path
@@ -18,6 +19,7 @@ export default function Home() {
   const [files, setFiles] = useState([])
   const [currentFileName, setCurrentFileName] = useState("")
   const [content, setContent] = useState("")
+  const [isFileExplorerVisible, setIsFileExplorerVisible] = useState(true)
 
   const loadFiles = async () => {
     try {
@@ -99,7 +101,24 @@ export default function Home() {
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col">
       <ToastContainer />
       <div className="border-b border-gray-800 p-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Assist</h1>
+        <div className="flex items-center gap-2"> {/* Adjusted gap-4 to gap-2 to make space for button */}
+          <Button
+            onClick={() => setIsFileExplorerVisible(!isFileExplorerVisible)}
+            variant="ghost" // Using ghost variant
+            size="icon" // Using icon size
+            className="text-gray-400 hover:text-gray-100 hover:bg-gray-800" // Styling similar to FileExplorer's old button
+          >
+            {isFileExplorerVisible ? (
+              <>
+                {/* Adjusted icon size to w-5 h-5 to match previous header button */}
+                <PanelLeftClose className="w-5 h-5" />
+              </>
+            ) : (
+              <PanelLeftOpen className="w-5 h-5" />
+            )}
+          </Button>
+          <h1 className="text-xl font-semibold">Assist</h1>
+        </div>
         <Button onClick={loadFiles} variant="outline" className="bg-gray-900 border-gray-700 hover:bg-gray-800">
           <FolderOpen className="w-4 h-4 mr-2" />
           Reload Files
@@ -107,23 +126,47 @@ export default function Home() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="w-80 border-r border-gray-800 bg-gray-950">
-          <FileExplorer files={files} onFileSelect={openFile} />
-        </div>
+        <PanelGroup direction="horizontal" className="flex-1">
+          {isFileExplorerVisible && (
+            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible} onCollapse={() => setIsFileExplorerVisible(false)}>
 
-        <div className="flex-1 flex">
-          <div className="flex-1 border-r border-gray-800">
-            <FileEditor
-              content={content}
-              onChange={setContent}
-              fileName={currentFileName || "Untitled"}
-              onRename={handleRename}
-            />
-          </div>
-          <div className="flex-1">
-            <MarkdownPreview content={content} />
-          </div>
-        </div>
+              <div className="h-full border-r border-gray-800 bg-gray-950 overflow-y-auto">
+                <FileExplorer
+                  files={files}
+                  onFileSelect={openFile}
+                  // isExplorerVisible and onToggleExplorer props removed
+                />
+              </div>
+            </Panel>
+          )}
+          {isFileExplorerVisible && (
+            <PanelResizeHandle className="resize-handle-outer">
+              <div className="resize-handle-inner" />
+            </PanelResizeHandle>
+          )}
+          <Panel defaultSize={isFileExplorerVisible ? 80 : 100}>
+            <PanelGroup direction="horizontal" className="flex-1">
+              <Panel defaultSize={isFileExplorerVisible ? 50 : 100} minSize={20}>
+                <div className="h-full border-r border-gray-800">
+                  <FileEditor
+                    content={content}
+                    onChange={setContent}
+                    fileName={currentFileName || "Untitled"}
+                    onRename={handleRename}
+                  />
+                </div>
+              </Panel>
+              <PanelResizeHandle className="resize-handle-outer">
+                <div className="resize-handle-inner" />
+              </PanelResizeHandle>
+              <Panel defaultSize={50} minSize={20}>
+                <div className="h-full">
+                  <MarkdownPreview content={content} />
+                </div>
+              </Panel>
+            </PanelGroup>
+          </Panel>
+        </PanelGroup>
       </div>
     </div>
   )

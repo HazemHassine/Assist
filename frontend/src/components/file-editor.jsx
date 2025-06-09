@@ -62,9 +62,6 @@ export default function FileEditor({ content, onChange, fileName, onRename }) {
     <div className="h-full flex flex-col bg-slate-900">
       <div className="border-b border-gray-800 p-3 flex items-center justify-between bg-slate-900">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500" />
-          <div className="w-3 h-3 rounded-full bg-yellow-500" />
-          <div className="w-3 h-3 rounded-full bg-green-500" />
           {isEditing ? (
             <input
               ref={inputRef}

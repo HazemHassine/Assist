@@ -88,6 +88,7 @@
 "use client"
 
 import { useState } from "react"
+// PanelLeftClose and PanelLeftOpen removed from lucide-react imports
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -154,6 +155,7 @@ function TreeNode({ item, level, onFileSelect, parentPath = "" }) {
   )
 }
 
+// isExplorerVisible and onToggleExplorer removed from props
 export function FileExplorer({ files, onFileSelect }) {
   if (!files || files.length === 0) {
     return (
@@ -167,6 +169,7 @@ export function FileExplorer({ files, onFileSelect }) {
   return (
     <div className="p-2 h-full overflow-auto">
       <div className="mb-4">
+        {/* Toggle button and its surrounding div removed, h3 now stands alone with original mb-2 */}
         <h3 className="text-sm font-medium text-gray-400 mb-2">Files</h3>
         <div className="space-y-1">
           {files.map((file) => (

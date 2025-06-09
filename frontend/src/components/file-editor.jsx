@@ -7,11 +7,15 @@ import { Save } from "lucide-react";
 export default function FileEditor({ content, onChange, fileName, onRename }) {
   const editorRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingName, setEditingName] = useState(fileName.split("/").pop());
+  const [editingName, setEditingName] = useState(
+    fileName === "Untitled" ? "Untitled" : fileName.split("/").pop()
+  );
   const inputRef = useRef(null);
 
   useEffect(() => {
-    setEditingName(fileName.split("/").pop());
+    setEditingName(
+      fileName === "Untitled" ? "Untitled" : fileName.split("/").pop()
+    );
   }, [fileName]);
 
   useEffect(() => {
@@ -23,6 +27,7 @@ export default function FileEditor({ content, onChange, fileName, onRename }) {
 
   const finish = (save) => {
     setIsEditing(false);
+    if (fileName === "Untitled") return; // Do nothing if no file is selected
     const original = fileName.split("/").pop();
     if (save && editingName && editingName !== original) {
       onRename(editingName);
@@ -61,34 +66,56 @@ export default function FileEditor({ content, onChange, fileName, onRename }) {
   return (
     <div className="h-full flex flex-col bg-slate-900">
       <div className="border-b border-gray-800 p-3 flex items-center justify-between bg-slate-900">
-        <div className="flex items-center gap-2">
-          {isEditing ? (
-            <input
-              ref={inputRef}
-              value={editingName}
-              onChange={(e) => setEditingName(e.target.value)}
-              onBlur={() => finish(true)}
-              onKeyDown={onKey}
-              className="ml-4 text-sm bg-slate-800 text-gray-200 truncate max-w-xs"
-            />
-          ) : (
-            <span
-              onClick={() => setIsEditing(true)}
-              className="ml-4 text-sm text-gray-400 truncate max-w-xs cursor-text"
-            >
-              {editingName}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500 select-none">
-          <Save className="w-3 h-3" />
-          <span>Ctrl+S to save</span>
-        </div>
+        {fileName === "Untitled" ? (
+          <div className="ml-4 text-sm text-gray-400">
+            Select a file to start editing
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <input
+                ref={inputRef}
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                onBlur={() => finish(true)}
+                onKeyDown={onKey}
+                className="ml-4 text-sm bg-slate-800 text-gray-200 truncate max-w-xs"
+              />
+            ) : (
+              <span
+                onClick={() => setIsEditing(true)}
+                className="ml-4 text-sm text-gray-400 truncate max-w-xs cursor-text"
+              >
+                {editingName}
+              </span>
+            )}
+          </div>
+        )}
+        {fileName !== "Untitled" && (
+          <div className="flex items-center gap-2 text-xs text-gray-500 select-none">
+            <Save className="w-3 h-3" />
+            <span>Ctrl+S to save</span>
+          </div>
+        )}
       </div>
       <div className="flex-1">
-        <Editor
-          height="100%"
-          defaultLanguage="markdown"
+        {fileName === "Untitled" ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+              color: "#9CA3AF", // Equivalent to text-gray-400
+              fontSize: "1.125rem", // Equivalent to text-lg
+            }}
+          >
+            No file selected. Please choose a file from the explorer.
+          </div>
+        ) : (
+          <Editor
+            height="100%"
+            defaultLanguage="markdown"
           value={content}
           onChange={(value) => onChange(value || "")}
           onMount={handleEditorDidMount}
@@ -113,6 +140,7 @@ export default function FileEditor({ content, onChange, fileName, onRename }) {
             },
           }}
         />
+        )} {/* This closes the false case of the ternary operator */}
       </div>
     </div>
   );

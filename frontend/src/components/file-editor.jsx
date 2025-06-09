@@ -140,6 +140,7 @@ export default function FileEditor({ content, onChange, fileName, onRename }) {
             },
           }}
         />
+        ) {/* This closes the false case of the ternary operator */}
       </div>
     </div>
   );

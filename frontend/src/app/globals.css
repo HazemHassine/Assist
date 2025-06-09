@@ -153,9 +153,11 @@
 /* Remove default panel resize handle styling if it was applied through tailwind previously */
 /* For example, if you had something like this in page.js: className="w-1 bg-gray-800 hover:bg-gray-700 transition-colors" */
 /* You might not need this if the new classes completely override or if the old classes were removed */
+/*
 .w-1.bg-gray-800.hover\\:bg-gray-700.transition-colors {
-  background-color: transparent !important; /* Overriding previous inline/tailwind styles */
+  background-color: transparent !important; / Overriding previous inline/tailwind styles /
 }
 .w-1.bg-gray-800.hover\\:bg-gray-700.transition-colors:hover .resize-handle-inner {
-   /* Ensure hover on outer still colors inner if needed, or manage hover on .resize-handle-outer directly */
+   / Ensure hover on outer still colors inner if needed, or manage hover on .resize-handle-outer directly /
 }
+*/

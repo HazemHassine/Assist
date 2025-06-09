@@ -13,7 +13,8 @@ function safeJoin(...segments) {
 }
 
 export async function GET(req, { params }) {
-  const filename = params.filename.join('/')
+  const awaitedParams = await params;
+  const filename = awaitedParams.filename.join('/')
   const full = safeJoin(BASE_PATH, filename)
 
   try {
@@ -31,7 +32,8 @@ export async function GET(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
-  const filename = params.filename.join('/')
+  const awaitedParams = await params;
+  const filename = awaitedParams.filename.join('/')
   const full = safeJoin(BASE_PATH, filename)
   const { newName } = await req.json()
 
@@ -65,7 +67,8 @@ export async function PATCH(req, { params }) {
 }
 
 export async function POST(req, { params }) {
-  const filename = params.filename.join('/')
+  const awaitedParams = await params;
+  const filename = awaitedParams.filename.join('/')
   const full = safeJoin(BASE_PATH, filename)
   const body = await req.json()
 
@@ -79,6 +82,21 @@ export async function POST(req, { params }) {
   try {
     await fs.mkdir(path.dirname(full), { recursive: true })
     await fs.writeFile(full, body.content, 'utf-8')
+    return NextResponse.json({ message: 'File saved' })
+  } catch (e) {
+    return NextResponse.json({ detail: e.message || String(e) }, { status: 500 })
+  }
+}
+
+export async function PUT(req, { params }) {
+  const awaitedParams = await params;
+  const filename = awaitedParams.filename.join('/')
+  const full = safeJoin(BASE_PATH, filename)
+
+  try {
+    const bodyAsText = await req.text();
+    await fs.mkdir(path.dirname(full), { recursive: true })
+    await fs.writeFile(full, bodyAsText, 'utf-8')
     return NextResponse.json({ message: 'File saved' })
   } catch (e) {
     return NextResponse.json({ detail: e.message || String(e) }, { status: 500 })

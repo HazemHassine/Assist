@@ -5,7 +5,7 @@ import { FileExplorer } from "@/components/file-explorer"
 import FileEditor from "@/components/file-editor"
 import { MarkdownPreview } from "@/components/markdown-preview"
 import { Button } from "@/components/ui/button"
-import { FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { FolderOpen } from "lucide-react" // PanelLeftClose and PanelLeftOpen removed
 import { ToastContainer, toast, Bounce } from 'react-toastify'
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
@@ -101,21 +101,8 @@ export default function Home() {
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col">
       <ToastContainer />
       <div className="border-b border-gray-800 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => setIsFileExplorerVisible(!isFileExplorerVisible)}
-            variant="outline"
-            size="icon"
-            className="bg-gray-900 border-gray-700 hover:bg-gray-800"
-          >
-            {isFileExplorerVisible ? (
-              <PanelLeftClose className="w-5 h-5" />
-            ) : (
-              <PanelLeftOpen className="w-5 h-5" />
-            )}
-          </Button>
-          <h1 className="text-xl font-semibold">Assist</h1>
-        </div>
+        {/* Toggle button removed from here */}
+        <h1 className="text-xl font-semibold">Assist</h1>
         <Button onClick={loadFiles} variant="outline" className="bg-gray-900 border-gray-700 hover:bg-gray-800">
           <FolderOpen className="w-4 h-4 mr-2" />
           Reload Files
@@ -125,9 +112,15 @@ export default function Home() {
       <div className="flex-1 flex overflow-hidden">
         <PanelGroup direction="horizontal" className="flex-1">
           {isFileExplorerVisible && (
-            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible} onCollapse={setIsFileExplorerVisible}>
+            // Temporarily removing onCollapse to test if it's the source of the warning
+            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible} /* onCollapse={() => setIsFileExplorerVisible(false)} */ >
               <div className="h-full border-r border-gray-800 bg-gray-950 overflow-y-auto">
-                <FileExplorer files={files} onFileSelect={openFile} />
+                <FileExplorer
+                  files={files}
+                  onFileSelect={openFile}
+                  isExplorerVisible={isFileExplorerVisible}
+                  onToggleExplorer={() => setIsFileExplorerVisible(!isFileExplorerVisible)}
+                />
               </div>
             </Panel>
           )}

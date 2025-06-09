@@ -113,7 +113,7 @@ export default function Home() {
         <PanelGroup direction="horizontal" className="flex-1">
           {isFileExplorerVisible && (
             // Temporarily removing onCollapse to test if it's the source of the warning
-            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible} /* onCollapse={() => setIsFileExplorerVisible(false)} */ >
+            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible ? true : undefined} /* onCollapse={() => setIsFileExplorerVisible(false)} */ >
               <div className="h-full border-r border-gray-800 bg-gray-950 overflow-y-auto">
                 <FileExplorer
                   files={files}
@@ -129,7 +129,7 @@ export default function Home() {
               <div className="resize-handle-inner" />
             </PanelResizeHandle>
           )}
-          <Panel>
+          <Panel defaultSize={isFileExplorerVisible ? 80 : 100}>
             <PanelGroup direction="horizontal" className="flex-1">
               <Panel defaultSize={isFileExplorerVisible ? 50 : 100} minSize={20}>
                 <div className="h-full border-r border-gray-800">

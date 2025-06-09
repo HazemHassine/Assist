@@ -88,7 +88,8 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+// PanelLeftClose and PanelLeftOpen removed from lucide-react imports
+import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -154,7 +155,8 @@ function TreeNode({ item, level, onFileSelect, parentPath = "" }) {
   )
 }
 
-export function FileExplorer({ files, onFileSelect, isExplorerVisible, onToggleExplorer }) {
+// isExplorerVisible and onToggleExplorer removed from props
+export function FileExplorer({ files, onFileSelect }) {
   if (!files || files.length === 0) {
     return (
       <div className="p-4 text-center text-gray-500">
@@ -167,23 +169,8 @@ export function FileExplorer({ files, onFileSelect, isExplorerVisible, onToggleE
   return (
     <div className="p-2 h-full overflow-auto">
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-400">Files</h3>
-          {onToggleExplorer && ( // Conditionally render button if prop is provided
-            <Button
-              onClick={onToggleExplorer}
-              variant="ghost"
-              size="icon"
-              className="w-7 h-7 text-gray-400 hover:text-gray-100 hover:bg-gray-800"
-            >
-              {isExplorerVisible ? (
-                <PanelLeftClose className="w-4 h-4" />
-              ) : (
-                <PanelLeftOpen className="w-4 h-4" />
-              )}
-            </Button>
-          )}
-        </div>
+        {/* Toggle button and its surrounding div removed, h3 now stands alone with original mb-2 */}
+        <h3 className="text-sm font-medium text-gray-400 mb-2">Files</h3>
         <div className="space-y-1">
           {files.map((file) => (
             <TreeNode key={file.name} item={file} level={0} onFileSelect={onFileSelect} />

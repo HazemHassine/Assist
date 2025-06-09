@@ -6,9 +6,8 @@ import FileEditor from "@/components/file-editor"
 import { MarkdownPreview } from "@/components/markdown-preview"
 import { Button } from "@/components/ui/button"
 import { FolderOpen } from "lucide-react"
-import { ToastContainer, toast, Bounce } from 'react-toastify';
+import { ToastContainer, toast, Bounce } from 'react-toastify'
 
-// Helper to encode full paths correctly (encode segments but keep slashes)
 const encodePath = (path) =>
   path
     .split("/")
@@ -17,79 +16,65 @@ const encodePath = (path) =>
 
 export default function Home() {
   const [files, setFiles] = useState([])
-  const [currentFile, setCurrentFile] = useState(null)
+  const [currentFileName, setCurrentFileName] = useState("")
   const [content, setContent] = useState("")
 
-  // Load file list from backend API
   const loadFiles = async () => {
     try {
-      const res = await fetch("http://localhost:8000/files")
+      const res = await fetch("/api/files")
       if (!res.ok) throw new Error("Failed to fetch files")
       const data = await res.json()
-      setFiles(data.files || ["test.md", "example.md"]) // fallback
-    } catch (error) {
-      console.error("Failed to load files", error)
+      setFiles(data.files || [])
+    } catch {
       setFiles([])
     }
   }
 
-  // Load content of a selected file
   const openFile = async (filePath) => {
     try {
-      const res = await fetch(`http://localhost:8000/files/${encodePath(filePath)}`)
-      console.log(res)
-      if (!res.ok) throw new Error("Failed to fetch file content")
+      const res = await fetch(`/api/files/${encodePath(filePath)}`)
+      if (!res.ok) throw new Error("Failed to fetch file")
       const data = await res.json()
-      setCurrentFile({ name: filePath })
+      setCurrentFileName(filePath)
       setContent(data.content)
-    } catch (error) {
-      console.error("Failed to open file", error)
-      setCurrentFile(null)
+    } catch {
+      setCurrentFileName("")
       setContent("")
+      toast.error("Failed to open file", { position: "top-right", theme: "dark", transition: Bounce })
     }
   }
 
-  // Save content back to backend API
   const saveFile = async () => {
-    if (!currentFile) return
-
+    if (!currentFileName) return
     try {
-      const res = await fetch(`http://localhost:8000/files/${encodePath(currentFile.name)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+      const res = await fetch(`/api/files/${encodePath(currentFileName)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "text/plain" },
+        body: content,
       })
       if (!res.ok) throw new Error("Failed to save file")
-      toast.success("File saved successfully!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce
-      })
-    } catch (error) {
-      console.error("Failed to save file", error)
-      toast.error("Failed to save file", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        transition: Bounce
-      })
+      toast.success("File saved!", { position: "top-right", theme: "dark", transition: Bounce })
+    } catch {
+      toast.error("Failed to save file", { position: "top-right", theme: "dark", transition: Bounce })
     }
   }
 
-  useEffect(() => {
-    loadFiles()
-  }, [])
+  const handleRename = async (newName) => {
+    if (!currentFileName || newName === currentFileName) return
+    try {
+      const res = await fetch(`/api/files/${encodePath(currentFileName)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newName }),
+      })
+      if (!res.ok) throw new Error("Rename failed")
+      setCurrentFileName(newName)
+      loadFiles()
+      toast.success("File renamed!", { position: "top-right", theme: "dark", transition: Bounce })
+    } catch {
+      toast.error("Failed to rename file", { position: "top-right", theme: "dark", transition: Bounce })
+    }
+  }
 
   const handleKeyDown = useCallback(
     (event) => {
@@ -98,51 +83,43 @@ export default function Home() {
         saveFile()
       }
     },
-    [content, currentFile],
+    [content, currentFileName]
   )
 
   useEffect(() => {
+    loadFiles()
+  }, [])
+
+  useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-    }
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
 
   return (
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col">
-      {/* Header */}
       <ToastContainer />
       <div className="border-b border-gray-800 p-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Assist</h1>
-        <Button
-          onClick={loadFiles}
-          variant="outline"
-          className="bg-gray-900 border-gray-700 hover:bg-gray-800"
-          title="Reload file list from backend"
-        >
+        <Button onClick={loadFiles} variant="outline" className="bg-gray-900 border-gray-700 hover:bg-gray-800">
           <FolderOpen className="w-4 h-4 mr-2" />
           Reload Files
         </Button>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* File Explorer */}
         <div className="w-80 border-r border-gray-800 bg-gray-950">
-          <FileExplorer
-            files={files}
-            directoryHandle={null} // not used in backend mode
-            onFileSelect={openFile}
-            onDirectoryLoad={() => { }} // no-op
-          />
+          <FileExplorer files={files} onFileSelect={openFile} />
         </div>
 
-        {/* Editor and Preview */}
         <div className="flex-1 flex">
           <div className="flex-1 border-r border-gray-800">
-            <FileEditor content={content} onChange={setContent} fileName={currentFile?.name || "Untitled"} />
+            <FileEditor
+              content={content}
+              onChange={setContent}
+              fileName={currentFileName || "Untitled"}
+              onRename={handleRename}
+            />
           </div>
-
           <div className="flex-1">
             <MarkdownPreview content={content} />
           </div>

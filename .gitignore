@@ -15,6 +15,7 @@ __pycache__/
 # General
 .DS_Store
 *.env
+notebooks/.env
 
 # Python virtual environment
 glob_env/
@@ -29,6 +30,7 @@ notebooks/token.json
 # Data
 notebooks/preprocessed
 vault/
+db/
 data/
 notebooks/data/
 notebooks/chroma_db

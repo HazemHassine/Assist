@@ -1,16 +1,43 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { Editor } from "@monaco-editor/react"
-import { Save } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { Editor } from "@monaco-editor/react";
+import { Save } from "lucide-react";
 
-export default function FileEditor({ content, onChange, fileName }) {
-  const editorRef = useRef(null)
+export default function FileEditor({ content, onChange, fileName, onRename }) {
+  const editorRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingName, setEditingName] = useState(fileName.split("/").pop());
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    setEditingName(fileName.split("/").pop());
+  }, [fileName]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const finish = (save) => {
+    setIsEditing(false);
+    const original = fileName.split("/").pop();
+    if (save && editingName && editingName !== original) {
+      onRename(editingName);
+    } else {
+      setEditingName(original);
+    }
+  };
+
+  const onKey = (e) => {
+    if (e.key === "Enter") finish(true);
+    if (e.key === "Escape") finish(false);
+  };
 
   const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = editor
-
-    // Define a dark theme for Monaco Editor
+    editorRef.current = editor;
     monaco.editor.defineTheme("obsidian-dark", {
       base: "vs-dark",
       inherit: true,
@@ -27,28 +54,40 @@ export default function FileEditor({ content, onChange, fileName }) {
         "editor.selectionBackground": "#334155",
         "editor.lineHighlightBackground": "#1E293B",
       },
-    })
-
-    monaco.editor.setTheme("obsidian-dark")
-  }
+    });
+    monaco.editor.setTheme("obsidian-dark");
+  };
 
   return (
     <div className="h-full flex flex-col bg-slate-900">
-      {/* Header */}
       <div className="border-b border-gray-800 p-3 flex items-center justify-between bg-slate-900">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
           <div className="w-3 h-3 rounded-full bg-yellow-500" />
           <div className="w-3 h-3 rounded-full bg-green-500" />
-          <span className="ml-4 text-sm text-gray-400 truncate max-w-xs">{fileName}</span>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={editingName}
+              onChange={(e) => setEditingName(e.target.value)}
+              onBlur={() => finish(true)}
+              onKeyDown={onKey}
+              className="ml-4 text-sm bg-slate-800 text-gray-200 truncate max-w-xs"
+            />
+          ) : (
+            <span
+              onClick={() => setIsEditing(true)}
+              className="ml-4 text-sm text-gray-400 truncate max-w-xs cursor-text"
+            >
+              {editingName}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-500 select-none">
           <Save className="w-3 h-3" />
           <span>Ctrl+S to save</span>
         </div>
       </div>
-
-      {/* Editor */}
       <div className="flex-1">
         <Editor
           height="100%"
@@ -79,5 +118,5 @@ export default function FileEditor({ content, onChange, fileName }) {
         />
       </div>
     </div>
-  )
+  );
 }

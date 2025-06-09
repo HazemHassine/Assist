@@ -109,7 +109,10 @@ export default function Home() {
             className="text-gray-400 hover:text-gray-100 hover:bg-gray-800" // Styling similar to FileExplorer's old button
           >
             {isFileExplorerVisible ? (
-              <PanelLeftClose className="w-5 h-5" /> {/* Adjusted icon size to w-5 h-5 to match previous header button */}
+              <>
+                {/* Adjusted icon size to w-5 h-5 to match previous header button */}
+                <PanelLeftClose className="w-5 h-5" />
+              </>
             ) : (
               <PanelLeftOpen className="w-5 h-5" />
             )}

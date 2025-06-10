@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect, version } from "react"
 import { FileExplorer } from "@/components/file-explorer"
 import FileEditor from "@/components/file-editor"
-import ChatPanel from "@/components/ChatPanel" // Import ChatPanel
 import { MarkdownPreview } from "@/components/markdown-preview"
 import { Button } from "@/components/ui/button"
 import { FolderOpen, PanelLeftClose, PanelLeftOpen, MessageSquare } from "lucide-react" // Re-adding PanelLeftClose and PanelLeftOpen
@@ -302,12 +301,6 @@ export default function Home() {
           </Panel>
         </PanelGroup>
       </div>
-      {/* Render ChatPanel conditionally */}
-      <ChatPanel
-        isOpen={isChatPanelOpen}
-        onClose={() => setIsChatPanelOpen(false)}
-        currentFileName={currentFileName}
-      />
     </div>
   )
 }

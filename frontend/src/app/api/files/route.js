@@ -1,43 +1,28 @@
-import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+// Path: frontend/src/app/api/files/route.js
+// This route handles GET requests for listing all files/folders (file tree)
+// using local filesystem utilities.
+export const dynamic = 'force-dynamic';
 
-export const BASE_PATH = path.resolve(process.cwd(), '../vault')
+import { buildFileTree, BASE_PATH } from '../../../lib/fs-utils.js';
+// Note: Next.js 13+ App Router uses Response object, not NextResponse explicitly unless needed for specific features.
+// Standard Response.json() is available globally.
 
-function buildFileTree(dir) {
-  let entries
+export async function GET(request) {
   try {
-    entries = fs.readdirSync(dir)
-  } catch {
-    return []
-  }
+    // BASE_PATH from fs-utils.js is the root of the vault.
+    const tree = await buildFileTree(BASE_PATH);
 
-  const items = []
-  for (const name of entries) {
-    const full = path.join(dir, name)
-    if (fs.statSync(full).isDirectory()) {
-      items.push({
-        name,
-        type: 'directory',
-        children: buildFileTree(full),
-      })
-    } else {
-      items.push({ name, type: 'file' })
+    return Response.json({ files: tree });
+
+  } catch (error) {
+    console.error("Error in /api/files GET handler:", error);
+    // Check if the error is a known type or has a specific message to customize client response
+    if (error.message.includes("Access denied") || error.message.includes("Invalid path")) {
+        return Response.json({ detail: error.message }, { status: 400 });
     }
+    // For other errors, return a generic 500.
+    return Response.json({ detail: "Internal server error: Could not build file tree." }, {
+      status: 500,
+    });
   }
-
-  // directories first, then files
-  items.sort((a, b) => {
-    if (a.type === b.type) {
-      return a.name.localeCompare(b.name)
-    }
-    return a.type === 'directory' ? -1 : 1
-  })
-
-  return items
-}
-
-export async function GET() {
-  const tree = buildFileTree(BASE_PATH)
-  return NextResponse.json({ files: tree })
 }

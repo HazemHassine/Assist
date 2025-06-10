@@ -9,9 +9,11 @@ import { getValidatedPath } from '../../../../lib/fs-utils.js';
 // BACKEND_API_URL is removed as neither GET nor PUT will use it.
 
 // GET /api/files/{path} - Reads a file using local filesystem
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+  const params = await props.params;
   try {
-    const relativePath = params.filename?.join("/") || "";
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
 
     if (!relativePath) {
       return Response.json({ detail: "File path is required" }, { status: 400 });
@@ -47,9 +49,11 @@ export async function GET(request, { params }) {
 // PUT /api/files/{path} - Writes a file (frontend's saveFile uses PUT)
 // This will be translated to a POST request to the backend's /files/{path} endpoint
 // Now uses local filesystem
-export async function PUT(request, { params }) {
+export async function PUT(request, props) {
+  const params = await props.params;
   try {
-    const relativePath = params.filename?.join("/") || "";
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
 
     if (!relativePath) {
       return Response.json({ detail: "File path is required for saving" }, { status: 400 });

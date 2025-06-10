@@ -9,9 +9,11 @@ import { getValidatedPath } from '../../../../lib/fs-utils.js';
 // BACKEND_API_URL is removed as neither GET nor PUT will use it.
 
 // GET /api/files/{path} - Reads a file using local filesystem
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+  const params = await props.params;
   try {
-    const relativePath = params.filename?.join("/") || "";
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
 
     if (!relativePath) {
       return Response.json({ detail: "File path is required" }, { status: 400 });
@@ -47,9 +49,11 @@ export async function GET(request, { params }) {
 // PUT /api/files/{path} - Writes a file (frontend's saveFile uses PUT)
 // This will be translated to a POST request to the backend's /files/{path} endpoint
 // Now uses local filesystem
-export async function PUT(request, { params }) {
+export async function PUT(request, props) {
+  const params = await props.params;
   try {
-    const relativePath = params.filename?.join("/") || "";
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
 
     if (!relativePath) {
       return Response.json({ detail: "File path is required for saving" }, { status: 400 });
@@ -90,6 +94,51 @@ export async function PUT(request, { params }) {
     }
     // Add more specific error handling if needed, e.g., EACCES for permissions
     return Response.json({ detail: "Internal server error while saving file." }, { status: 500 });
+  }
+}
+
+// DELETE /api/files/{path} - Deletes a file or directory
+export async function DELETE(request, props) {
+  const params = await props.params;
+  try {
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
+
+    if (!relativePath) {
+      return Response.json({ detail: "File path is required for deletion" }, { status: 400 });
+    }
+
+    const fullPath = getValidatedPath(relativePath); // Validates path, throws on error
+
+    // Check if path exists before attempting deletion
+    try {
+      await fs.stat(fullPath);
+      // fs.stat will throw an error if path does not exist (ENOENT)
+    } catch (statError) {
+      if (statError.code === 'ENOENT') {
+        return Response.json({ detail: "File or directory not found" }, { status: 404 });
+      }
+      // For other stat errors (e.g., EACCES), let them propagate to the main catch block
+      // or handle them specifically if needed. Here, we'll let the main catch handle them.
+      console.error(`Stat error before deletion: ${statError.message}`);
+      throw statError;
+    }
+
+    await fs.rm(fullPath, { recursive: true }); // recursive: true allows deletion of directories
+
+    return Response.json({ message: "File or directory deleted successfully" }, { status: 200 });
+
+  } catch (error) {
+    console.error(`Error in /api/files/[...filename] DELETE: ${error.message}`);
+    if (error.message.startsWith("Invalid path") || error.message.includes("outside the allowed directory")) {
+      return Response.json({ detail: error.message }, { status: 400 });
+    } else if (error.code === 'ENOENT') { // Should be caught by the fs.stat check, but as a fallback
+      return Response.json({ detail: "File or directory not found" }, { status: 404 });
+    } else if (error.code === 'EPERM' || error.code === 'EACCES') {
+      return Response.json({ detail: "Permission denied" }, { status: 403 });
+    }
+    // Add more specific error handling if needed
+    return Response.json({ detail: "Internal server error while deleting item." }, { status: 500 });
   }
 }
 

@@ -4,7 +4,8 @@ export const dynamic = 'force-dynamic';
 import fs from 'fs/promises';
 import { getValidatedPath, BASE_PATH } from '../../../../lib/fs-utils.js'; // Corrected path
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request, props) {
+  const params = await props.params;
   try {
     const relativePath = params.paths?.join("/") || "";
 

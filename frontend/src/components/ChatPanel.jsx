@@ -6,8 +6,9 @@ import { X, RefreshCcw, Send, FileText, Search, MessageSquare, SquareArrowOutUpR
 
 const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
   const [prompt, setPrompt] = useState("");
-  const [messages, setMessages] = useState([]); // { text: string, sender: 'user' | 'ai' }[]
+  const [messages, setMessages] = useState([]);
   const [isFloatingMode, setIsFloatingMode] = useState(false);
+  const draggableRef = useRef(null); // Create a ref for the Draggable component
   const conversationEndRef = useRef(null);
 
   const handlePromptChange = (e) => {
@@ -17,7 +18,6 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (prompt.trim()) {
-      // For now, just add to messages array. AI response will be handled later.
       const newMessage = { text: prompt.trim(), sender: 'user' };
       setMessages([...messages, newMessage]);
       setPrompt("");
@@ -31,77 +31,12 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
     }
   }, [messages]);
 
-  // Placeholder for clearing context
   const handleClearContext = () => {
     setMessages([]);
     console.log("Chat context cleared.");
   };
 
-  return (
-    isOpen && (
-      <>
-      {isFloatingMode && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[999]"
-          onClick={() => setIsFloatingMode(false)} // Click backdrop to exit floating mode
-        ></div>
-      )}
-
-      {isFloatingMode ? (
-        <Draggable handle=".chat-panel-header" defaultClassName={`fixed w-3/5 h-4/5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000]`}>
-          <div className="flex flex-col bg-slate-800 text-slate-100 rounded-xl shadow-2xl border border-slate-700 p-4 h-full">
-            {/* Header (Handle for Draggable) */}
-            <div className="chat-panel-header flex justify-between items-center mb-3 cursor-grab active:cursor-grabbing">
-              <h2 className="text-lg font-semibold text-slate-200">Chat with AI <span className="text-sm text-slate-400 normal-case">(Floating)</span></h2>
-              <div className="flex items-center">
-                <button
-                  onClick={handleClearContext}
-                  title="Clear Chat History"
-                  className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"
-                >
-                  <RefreshCcw size={18} />
-                </button>
-                <button
-                  onClick={() => setIsFloatingMode(!isFloatingMode)}
-                  title={isFloatingMode ? "Dock Panel" : "Float Panel"}
-                  className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"
-                >
-                  <SquareArrowOutUpRight size={18} />
-                </button>
-                <button
-                  onClick={onClose}
-                  title="Close Panel"
-                  className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            {/* Remainder of the panel content */}
-            {panelContent()}
-          </div>
-        </Draggable>
-      ) : (
-        <div
-          className="fixed bottom-0 left-0 right-0 h-2/5 flex flex-col bg-slate-800 text-slate-100 z-[1000] p-4 border-t border-slate-700 shadow-[0_-2px_15px_rgba(0,0,0,0.3)] rounded-t-lg"
-        >
-          {/* Header */}
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-semibold text-slate-200">Chat with AI</h2>
-            <div className="flex items-center">
-               <button onClick={handleClearContext} title="Clear Chat History" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><RefreshCcw size={18} /></button>
-               <button onClick={() => setIsFloatingMode(!isFloatingMode)} title="Float Panel" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><SquareArrowOutUpRight size={18} /></button>
-               <button onClick={onClose} title="Close Panel" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><X size={20} /></button>
-            </div>
-          </div>
-          {/* Remainder of the panel content */}
-          {panelContent()}
-        </div>
-      )}
-      </>
-    )
-  );
-
+  // Extracted panel content for clarity with Draggable
   function panelContent() {
     return <>
       {/* Conversation Area */}
@@ -166,6 +101,55 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
       </div>
     </>;
   }
+
+  return (
+    isOpen && (
+      <>
+      {isFloatingMode && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[999]"
+          onClick={() => setIsFloatingMode(false)}
+        ></div>
+      )}
+
+      {isFloatingMode ? (
+        <Draggable nodeRef={draggableRef} handle=".chat-panel-header" defaultClassName={`fixed w-3/5 h-4/5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000]`}>
+          <div ref={draggableRef} className="flex flex-col bg-slate-800 text-slate-100 rounded-xl shadow-2xl border border-slate-700 p-4 h-full">
+            {/* Header (Handle for Draggable) */}
+            <div className="chat-panel-header flex justify-between items-center mb-3 cursor-grab active:cursor-grabbing">
+              <h2 className="text-lg font-semibold text-slate-200">Chat with AI <span className="text-sm text-slate-400 normal-case">(Floating)</span></h2>
+              <div className="flex items-center">
+                <button onClick={handleClearContext} title="Clear Chat History" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded">
+                  <RefreshCcw size={18} />
+                </button>
+                <button onClick={() => setIsFloatingMode(!isFloatingMode)} title={isFloatingMode ? "Dock Panel" : "Float Panel"} className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded">
+                  <SquareArrowOutUpRight size={18} />
+                </button>
+                <button onClick={onClose} title="Close Panel" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+            {panelContent()}
+          </div>
+        </Draggable>
+      ) : (
+        <div className="fixed bottom-0 left-0 right-0 h-2/5 flex flex-col bg-slate-800 text-slate-100 z-[1000] p-4 border-t border-slate-700 shadow-[0_-2px_15px_rgba(0,0,0,0.3)] rounded-t-lg">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold text-slate-200">Chat with AI</h2>
+            <div className="flex items-center">
+               <button onClick={handleClearContext} title="Clear Chat History" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><RefreshCcw size={18} /></button>
+               <button onClick={() => setIsFloatingMode(!isFloatingMode)} title="Float Panel" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><SquareArrowOutUpRight size={18} /></button>
+               <button onClick={onClose} title="Close Panel" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded"><X size={20} /></button>
+            </div>
+          </div>
+          {panelContent()}
+        </div>
+      )}
+      </>
+    )
+  );
 };
 
 export default ChatPanel;

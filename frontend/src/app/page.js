@@ -248,7 +248,7 @@ export default function Home() {
       <div className="flex-1 flex overflow-hidden">
         <PanelGroup direction="horizontal" className="flex-1">
           {isFileExplorerVisible && (
-            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible} onCollapse={() => setIsFileExplorerVisible(false)}>
+            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible.toString()} onCollapse={() => setIsFileExplorerVisible(false)}>
 
               <div className="h-full border-r border-gray-800 bg-gray-950 overflow-y-auto">
                 <FileExplorer

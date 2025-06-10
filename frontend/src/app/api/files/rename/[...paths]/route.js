@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import fs from 'fs/promises';
 import path from 'path';
-import { getValidatedPath, BASE_PATH } from '../../../../lib/fs-utils.js';
+import { getValidatedPath, BASE_PATH } from '../../../../../lib/fs-utils';
 
 export async function POST(request, { params }) {
   try {

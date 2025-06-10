@@ -61,14 +61,11 @@ export async function POST(request) {
       return Response.json({ detail: error.message }, { status: 400 });
     } else if (error.code === 'EACCES') {
       return Response.json({ detail: "Permission denied" }, { status: 403 });
-    } else if (error.code === 'ENOENT' && error.syscall === 'mkdir' && error.path === path.dirname(getValidatedPath(JSON.parse(error.config.data).path))) {
-      // This case might be complex to reliably catch if getValidatedPath itself fails due to non-existent intermediate for relative path.
-      // However, getValidatedPath primarily forms the path string; fs operations later reveal non-existence.
-      // The fs.access check is more direct for the final path.
-      // If mkdir on parentDir fails with ENOENT, it's an unexpected issue if not caught by getValidatedPath logic.
-      return Response.json({ detail: "Parent directory could not be created or found." }, { status: 500});
     }
     // Add more specific error handling if needed
+    // The removed 'ENOENT' block for 'mkdir' was potentially unreliable.
+    // Other ENOENT errors (e.g. during fs.access if path validation somehow passed but parent doesn't exist for fs.mkdir)
+    // will be caught by the generic handler or specific checks within the try block.
     return Response.json({ detail: "Internal server error while creating item." }, { status: 500 });
   }
 }

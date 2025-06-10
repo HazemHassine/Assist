@@ -7,7 +7,7 @@ import fs from 'fs/promises';
  * process.cwd() in Next.js server-side contexts (like API routes or server components if used there)
  * typically refers to the project root.
  */
-export const BASE_PATH = path.resolve(process.cwd(), 'vault');
+export const BASE_PATH = path.resolve(process.cwd(), '../vault');
 
 /**
  * Validates a relative path from the vault and returns a secure, absolute path.

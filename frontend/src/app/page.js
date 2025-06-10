@@ -110,9 +110,9 @@ export default function Home() {
 
       // If the deleted item was the currently open file, clear editor state
       if (currentFileName === path) {
-         setCurrentFileName("");
-         setContent("");
-         toast.info("The currently open file has been deleted.", { position: "top-right", theme: "dark", transition: Bounce });
+        setCurrentFileName("");
+        setContent("");
+        toast.info("The currently open file has been deleted.", { position: "top-right", theme: "dark", transition: Bounce });
       }
 
       loadFiles(); // Refresh file explorer
@@ -129,8 +129,8 @@ export default function Home() {
     }
     // Prevent moving item into itself or to the same location
     if (destinationPath.startsWith(sourcePath + '/') || sourcePath === destinationPath) {
-        toast.warn("Cannot move an item into itself or to the same location.", { position: "top-right", theme: "dark", transition: Bounce });
-        return;
+      toast.warn("Cannot move an item into itself or to the same location.", { position: "top-right", theme: "dark", transition: Bounce });
+      return;
     }
 
     try {
@@ -156,9 +156,9 @@ export default function Home() {
         // This might need adjustment based on how FileExplorer determines destinationPath.
         // A robust way: backend returns the exact new path of the moved item.
         // For now, just clear current file if it was moved. User can re-open.
-         setCurrentFileName(""); // Clear current file name
-         setContent(""); // Clear content
-         toast.info("The currently open file was moved. Please reopen it from its new location if needed.", { position: "top-right", theme: "dark", transition: Bounce });
+        setCurrentFileName(""); // Clear current file name
+        setContent(""); // Clear content
+        toast.info("The currently open file was moved. Please reopen it from its new location if needed.", { position: "top-right", theme: "dark", transition: Bounce });
       }
 
       loadFiles(); // Refresh file explorer
@@ -244,24 +244,30 @@ export default function Home() {
           Reload Files
         </Button>
       </div>
-
       <div className="flex-1 flex overflow-hidden">
         <PanelGroup direction="horizontal" className="flex-1">
           {isFileExplorerVisible && (
-            <Panel defaultSize={20} minSize={10} collapsible={true} collapsed={!isFileExplorerVisible.toString()} onCollapse={() => setIsFileExplorerVisible(false)}>
-
+            <Panel
+              defaultSize={20}
+              minSize={10}
+              collapsible
+              // only pass `collapsed` when true, and as a string
+              collapsed={!isFileExplorerVisible ? "true" : undefined}
+              onCollapse={() => setIsFileExplorerVisible(false)}
+            >
               <div className="h-full border-r border-gray-800 bg-gray-950 overflow-y-auto">
                 <FileExplorer
                   files={files}
                   onFileSelect={openFile}
-                   onCreate={handleCreateFileOrFolder}
-                   onMove={handleMoveItem}
-                   onRename={handleRename}
-                   onDelete={handleDelete}
+                  onCreate={handleCreateFileOrFolder}
+                  onMove={handleMoveItem}
+                  onRename={handleRename}
+                  onDelete={handleDelete}
                 />
               </div>
             </Panel>
           )}
+
           {isFileExplorerVisible && (
             <PanelResizeHandle className="resize-handle-outer">
               <div className="resize-handle-inner" />

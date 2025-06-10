@@ -91,7 +91,7 @@ describe('FileExplorer', () => {
   });
 
   describe('Context Menu Actions', () => {
-    test('Rename action on a file calls onRename after prompt', () => {
+    test('Rename action on a file calls onRename after prompt', async () => {
       global.prompt.mockReturnValue('renamed_file.txt');
       render(
         <FileExplorer
@@ -112,7 +112,7 @@ describe('FileExplorer', () => {
       // Instead, we find the ContextMenuItem for "Rename" within its conceptual menu.
       // Since ContextMenuContent is mocked to render its children, items will be in document.
       // We need to simulate the structure where items are conceptually tied to a trigger.
-      const file1Button = screen.getByText('file1.txt').closest('button');
+      // const file1Button = screen.getByText('file1.txt').closest('button'); // This was the duplicate
       expect(file1Button).toBeInTheDocument(); // Ensure the trigger element is found
 
       // Simulate right-click (context menu event) on the trigger

@@ -5,9 +5,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getValidatedPath, BASE_PATH } from '../../../../../lib/fs-utils';
 
-export async function POST(request, { params }) {
+export async function POST(request, props) {
+  const params = await props.params;
   try {
-    const oldRelativePath = params.paths?.join("/") || "";
+    const { paths: pathsArray } = params;
+    const oldRelativePath = pathsArray?.join("/") || "";
     if (!oldRelativePath) {
       return Response.json({ detail: "Original path is required for renaming." }, { status: 400 });
     }

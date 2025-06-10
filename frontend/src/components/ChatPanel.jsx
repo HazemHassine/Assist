@@ -9,10 +9,6 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
   const [isFloatingMode, setIsFloatingMode] = useState(false);
   const conversationEndRef = useRef(null);
 
-  if (!isOpen) {
-    return null;
-  }
-
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
   };
@@ -41,7 +37,7 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
   };
 
   return (
-    <>
+    isOpen && <>
       {isFloatingMode && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[999]"

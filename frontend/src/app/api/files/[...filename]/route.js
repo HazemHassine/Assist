@@ -97,6 +97,51 @@ export async function PUT(request, props) {
   }
 }
 
+// DELETE /api/files/{path} - Deletes a file or directory
+export async function DELETE(request, props) {
+  const params = await props.params;
+  try {
+    const { filename: filenameArray } = params;
+    const relativePath = filenameArray?.join("/") || "";
+
+    if (!relativePath) {
+      return Response.json({ detail: "File path is required for deletion" }, { status: 400 });
+    }
+
+    const fullPath = getValidatedPath(relativePath); // Validates path, throws on error
+
+    // Check if path exists before attempting deletion
+    try {
+      await fs.stat(fullPath);
+      // fs.stat will throw an error if path does not exist (ENOENT)
+    } catch (statError) {
+      if (statError.code === 'ENOENT') {
+        return Response.json({ detail: "File or directory not found" }, { status: 404 });
+      }
+      // For other stat errors (e.g., EACCES), let them propagate to the main catch block
+      // or handle them specifically if needed. Here, we'll let the main catch handle them.
+      console.error(`Stat error before deletion: ${statError.message}`);
+      throw statError;
+    }
+
+    await fs.rm(fullPath, { recursive: true }); // recursive: true allows deletion of directories
+
+    return Response.json({ message: "File or directory deleted successfully" }, { status: 200 });
+
+  } catch (error) {
+    console.error(`Error in /api/files/[...filename] DELETE: ${error.message}`);
+    if (error.message.startsWith("Invalid path") || error.message.includes("outside the allowed directory")) {
+      return Response.json({ detail: error.message }, { status: 400 });
+    } else if (error.code === 'ENOENT') { // Should be caught by the fs.stat check, but as a fallback
+      return Response.json({ detail: "File or directory not found" }, { status: 404 });
+    } else if (error.code === 'EPERM' || error.code === 'EACCES') {
+      return Response.json({ detail: "Permission denied" }, { status: 403 });
+    }
+    // Add more specific error handling if needed
+    return Response.json({ detail: "Internal server error while deleting item." }, { status: 500 });
+  }
+}
+
 // Other methods like PATCH, POST (if not for writing) are removed as they are either
 // handled by more specific routes (e.g., rename) or not aligned with the BFF proxy model for this path.
 // The original POST in this file expected JSON {content: ""}, which is now effectively handled by PUT.

@@ -114,21 +114,28 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
       )}
 
       {isFloatingMode ? (
-        <Draggable nodeRef={draggableRef} handle=".chat-panel-header" defaultClassName={`fixed top-[10%] left-[20%] z-[1000]`}>
-          <Resizable
-            ref={draggableRef}
-            defaultSize={{
-              width: '60vw',
-              height: '80vh',
-            }}
-            minWidth={400}
-            minHeight={300}
-            enable={{ top:true, right:true, bottom:true, left:true, topRight:true, bottomRight:true, bottomLeft:true, topLeft:true }}
-            className="flex flex-col bg-slate-800 text-slate-100 rounded-xl shadow-2xl border border-slate-700 p-4"
-          >
-            <div className="flex flex-col h-full w-full"> {/* Inner div for content structure */}
-              {/* Header (Handle for Draggable) */}
-              <div className="chat-panel-header flex justify-between items-center mb-3 cursor-grab active:cursor-grabbing">
+        // Draggable component itself is positioned by its defaultClassName.
+        // It directly wraps the element that draggableRef points to.
+        <Draggable
+          nodeRef={draggableRef}
+          handle=".chat-panel-header"
+          defaultClassName={`fixed top-4 left-[20%] z-[1000] w-[60vw] h-[calc(100vh-2rem)]`} // Adjusted top and height for flush appearance
+        >
+          {/* This div is the draggable element. Resizable is inside it. */}
+          <div ref={draggableRef} className="w-full h-full">
+            <Resizable
+              // Resizable controls the size of its children, not this outer draggable div directly.
+              // It needs to fill its parent, which is the div above.
+              size={{ width: '100%', height: '100%' }} // Make Resizable fill the draggable div
+              minWidth={400}
+              minHeight={300}
+              enable={{ top:true, right:true, bottom:true, left:true, topRight:true, bottomRight:true, bottomLeft:true, topLeft:true }}
+              className="flex flex-col bg-slate-800 text-slate-100 rounded-xl shadow-2xl border border-slate-700 p-4"
+            >
+            {/* This inner div is now the direct child of Resizable, taking up Resizable's full space */}
+            <div className="flex flex-col h-full w-full">
+            {/* Header (Handle for Draggable) */}
+            <div className="chat-panel-header flex justify-between items-center mb-3 cursor-grab active:cursor-grabbing">
               <h2 className="text-lg font-semibold text-slate-200">Chat with AI <span className="text-sm text-slate-400 normal-case">(Floating)</span></h2>
               <div className="flex items-center">
                 <button onClick={handleClearContext} title="Clear Chat History" className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded">
@@ -141,11 +148,12 @@ const ChatPanel = ({ isOpen, onClose, currentFileName }) => {
                   <X size={20} />
                 </button>
               </div>
-              </div>
-              {/* Remainder of the panel content */}
-              {panelContent()}
+            </div>
+            {/* Remainder of the panel content */}
+            {panelContent()}
             </div>
           </Resizable>
+        </div>
         </Draggable>
       ) : (
         <div className="fixed bottom-0 left-0 right-0 h-2/5 flex flex-col bg-slate-800 text-slate-100 z-[1000] p-4 border-t border-slate-700 shadow-[0_-2px_15px_rgba(0,0,0,0.3)] rounded-t-lg">

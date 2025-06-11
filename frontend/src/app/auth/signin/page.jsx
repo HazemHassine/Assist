@@ -18,9 +18,8 @@ export default function SignIn() {
 
   const handleSignIn = async (providerId) => {
     setIsLoading(prev => ({ ...prev, [providerId]: true }));
-    // Redirect URL can be specified here if needed, e.g., signIn(providerId, { callbackUrl: '/dashboard' })
-    await signIn(providerId);
-    // setIsLoading(prev => ({ ...prev, [providerId]: false })); // Usually not needed as page redirects
+    await signIn(providerId, { callbackUrl: '/' }); // Explicitly set callbackUrl
+    // setIsLoading(prev => ({ ...prev, [providerId]: false })); // Usually not reached due to redirect
   }
 
   // Basic dark theme styling (similar to signup page)

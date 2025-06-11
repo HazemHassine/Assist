@@ -25,6 +25,10 @@ function TreeNode({
   const [isExpanded, setIsExpanded] = useState(false)
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(item.name);
+
+  // ADD THIS LOG HERE:
+  console.log(`TreeNode render: item.name = ${item.name}, isRenaming = ${isRenaming}, renameValue = ${renameValue}`);
+
   const paddingLeft = level * 16 + 8 // Original padding + 8 for base indent
   const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 
@@ -94,8 +98,12 @@ function TreeNode({
   };
 
   const handleRename = () => {
-    setRenameValue(item.name); // Reset input value to current name
+    // ADD THIS LOG:
+    console.log(`handleRename called for item: ${item.name}`);
+    setRenameValue(item.name);
     setIsRenaming(true);
+    // ADD THIS LOG:
+    console.log(`handleRename: setIsRenaming(true) called. isRenaming should become true for ${item.name}`);
   };
 
   const handleDelete = () => {
@@ -171,7 +179,14 @@ function TreeNode({
           <ContextMenuItem onClick={handleCreateFolder} className="hover:bg-gray-700">
             <FolderPlus className="w-4 h-4 mr-2" /> New Folder
           </ContextMenuItem>
-          <ContextMenuItem onClick={handleRename} className="hover:bg-gray-700">
+          <ContextMenuItem
+            onClick={() => {
+              console.log("Rename ContextMenuItem clicked directly!");
+              // We'll call handleRename manually after this log if it works.
+              // handleRename();
+            }}
+            className="hover:bg-gray-700"
+          >
             <Edit3 className="w-4 h-4 mr-2" /> Rename
           </ContextMenuItem>
           <ContextMenuSeparator className="bg-gray-700" />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen, MoreVertical, FilePlus, FolderPlus, Edit3, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,6 +23,12 @@ function TreeNode({
   onMove,
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(item.name);
+
+  // ADD THIS LOG HERE:
+  console.log(`TreeNode render: item.name = ${item.name}, isRenaming = ${isRenaming}, renameValue = ${renameValue}`);
+
   const paddingLeft = level * 16 + 8 // Original padding + 8 for base indent
   const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 
@@ -92,17 +98,53 @@ function TreeNode({
   };
 
   const handleRename = () => {
-    const newName = prompt(`Enter new name for ${item.name}:`, item.name);
-    if (newName && newName !== item.name) {
-      onRename(currentPath, newName);
-    }
+    console.log(`handleRename called for item: ${item.name}. Current isRenaming before set: ${isRenaming}`);
+    setRenameValue(item.name);
+    setIsRenaming(true);
+    console.log(`handleRename: setIsRenaming(true) was called. Expecting re-render for ${item.name} with isRenaming = true.`);
   };
 
   const handleDelete = () => {
-    if (confirm(`Are you sure you want to delete "${item.name}"? This action cannot be undone.`)) {
-      onDelete(currentPath);
-    }
+    onDelete(currentPath); // Directly call onDelete
+    console.log(`handleDelete: Deleting ${currentPath} without confirmation.`); // Optional: for feedback
   };
+
+  const handleRenameSubmit = () => {
+    console.log(`handleRenameSubmit ACTUALLY RUNNING for ${item.name}. Current renameValue: "${renameValue}"`);
+    if (renameValue.trim() && renameValue.trim() !== item.name) {
+      console.log(`Calling onRename with path: "${currentPath}" and new name: "${renameValue.trim()}"`);
+      onRename(currentPath, renameValue.trim()); // RESTORE THIS
+    } else {
+      console.log(`Rename condition not met: renameValue (trimmed): "${renameValue.trim()}", item.name: "${item.name}"`);
+    }
+    setIsRenaming(false); // RESTORE THIS
+  };
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only proceed if renaming is active and the click is outside the input
+      if (isRenaming && inputRef.current && !inputRef.current.contains(event.target)) {
+        console.log("Click outside detected. Calling handleRenameSubmit.");
+        handleRenameSubmit();
+      }
+    };
+
+    if (isRenaming) {
+      document.addEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Added mousedown listener for click outside.");
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Cleaned up mousedown listener (isRenaming false).");
+    }
+
+    // Cleanup function for when the component unmounts or before re-running the effect
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Cleaned up mousedown listener (component unmount/re-effect).");
+    };
+  }, [isRenaming, handleRenameSubmit]);
 
   return (
     <div>
@@ -122,7 +164,7 @@ function TreeNode({
             onDragLeave={handleDragLeave} // For visual cues
             onDrop={handleDrop} // Handle the drop
           >
-            <div className="flex items-center gap-2 min-w-0 flex-1 pointer-events-none"> {/* pointer-events-none for children to ensure button gets drag events */}
+            <div className={`flex items-center gap-2 min-w-0 flex-1 ${isRenaming ? '' : 'pointer-events-none'}`}> {/* pointer-events-none for children to ensure button gets drag events */}
               {item.type === "directory" && (
                 <>
                   {isExpanded ? <ChevronDown className="w-4 h-4 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 flex-shrink-0" />}
@@ -130,7 +172,37 @@ function TreeNode({
                 </>
               )}
               {item.type === "file" && <File className="w-4 h-4 flex-shrink-0 text-gray-400" />}
-              <span className="truncate text-sm">{item.name}</span>
+              {isRenaming ? (
+                <input
+                  ref={inputRef} // Assign the ref here
+                  type="text"
+                  value={renameValue}
+                  onChange={(e) => {
+                    console.log(`Input onChange: old value: "${renameValue}", new value from input: "${e.target.value}"`);
+                    setRenameValue(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      console.log(`Input KeyDown: Enter pressed for ${item.name}. Calling handleRenameSubmit().`);
+                      handleRenameSubmit(); // RESTORE THIS
+                    } else if (e.key === "Escape") {
+                      console.log(`Input KeyDown: Escape pressed for ${item.name}. Resetting value and closing input.`);
+                      setRenameValue(item.name);
+                      setIsRenaming(false);
+                    }
+                  }}
+                  // onBlur={handleRenameSubmit} // COMMENT THIS OUT AGAIN
+                  className="bg-gray-700 text-gray-100 text-sm p-0.5 border border-gray-600 rounded" // Basic styling
+                  style={{ width: 'calc(100% - 20px)' }} // Adjust width as needed
+                  autoFocus // Automatically focus the input
+                  onFocus={(e) => {
+                    e.target.select();
+                    console.log("Input field focused and text selected.");
+                  }} // Select text on focus
+                />
+              ) : (
+                <span className="truncate text-sm">{item.name}</span>
+              )}
             </div>
             {/* Optional: Add a MoreVertical icon for discoverability of context menu, though right-click is standard */}
             {/* <MoreVertical className="w-4 h-4 ml-auto text-gray-500" /> */}
@@ -143,7 +215,13 @@ function TreeNode({
           <ContextMenuItem onClick={handleCreateFolder} className="hover:bg-gray-700">
             <FolderPlus className="w-4 h-4 mr-2" /> New Folder
           </ContextMenuItem>
-          <ContextMenuItem onClick={handleRename} className="hover:bg-gray-700">
+          <ContextMenuItem
+            onClick={() => {
+              console.log("Rename ContextMenuItem clicked directly! Now calling handleRename...");
+              handleRename(); // UNCOMMENT THIS LINE
+            }}
+            className="hover:bg-gray-700"
+          >
             <Edit3 className="w-4 h-4 mr-2" /> Rename
           </ContextMenuItem>
           <ContextMenuSeparator className="bg-gray-700" />

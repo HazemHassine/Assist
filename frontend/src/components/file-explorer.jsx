@@ -164,7 +164,11 @@ function TreeNode({
                   className="bg-gray-700 text-gray-100 text-sm p-0.5 border border-gray-600 rounded" // Basic styling
                   style={{ width: 'calc(100% - 20px)' }} // Adjust width as needed
                   autoFocus // Automatically focus the input
-                  onFocus={(e) => e.target.select()} // Select text on focus
+                  onFocus={(e) => {
+                    e.target.select();
+                    console.log("Input field focused and text selected.");
+                  }} // Select text on focus
+                  // onBlur={handleRenameSubmit} // TEMPORARILY COMMENT THIS OUT
                 />
               ) : (
                 <span className="truncate text-sm">{item.name}</span>

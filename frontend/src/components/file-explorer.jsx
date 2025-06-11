@@ -120,6 +120,32 @@ function TreeNode({
     setIsRenaming(false); // RESTORE THIS
   };
 
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only proceed if renaming is active and the click is outside the input
+      if (isRenaming && inputRef.current && !inputRef.current.contains(event.target)) {
+        console.log("Click outside detected. Calling handleRenameSubmit.");
+        handleRenameSubmit();
+      }
+    };
+
+    if (isRenaming) {
+      document.addEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Added mousedown listener for click outside.");
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Cleaned up mousedown listener (isRenaming false).");
+    }
+
+    // Cleanup function for when the component unmounts or before re-running the effect
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      console.log("useEffect: Cleaned up mousedown listener (component unmount/re-effect).");
+    };
+  }, [isRenaming, handleRenameSubmit]);
+
   return (
     <div>
       <ContextMenu>
@@ -148,6 +174,7 @@ function TreeNode({
               {item.type === "file" && <File className="w-4 h-4 flex-shrink-0 text-gray-400" />}
               {isRenaming ? (
                 <input
+                  ref={inputRef} // Assign the ref here
                   type="text"
                   value={renameValue}
                   onChange={(e) => {

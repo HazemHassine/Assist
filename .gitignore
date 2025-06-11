@@ -34,3 +34,4 @@ db/
 data/
 notebooks/data/
 notebooks/chroma_db
+frontend/.env.local

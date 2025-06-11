@@ -98,14 +98,10 @@ function TreeNode({
   };
 
   const handleRename = () => {
-    console.log(`handleRename called for item: ${item.name}. Current isRenaming: ${isRenaming}`);
+    console.log(`handleRename called for item: ${item.name}. Current isRenaming before set: ${isRenaming}`);
     setRenameValue(item.name);
     setIsRenaming(true);
-    // Use a callback in setIsRenaming to log the state *after* it's set.
-    // Note: This direct log after setIsRenaming might not show the updated state immediately
-    // due to React's asynchronous state updates. A useEffect would be better for post-update logging,
-    // but for now, this is a simple check.
-    console.log(`handleRename: setIsRenaming(true) was called. Expecting re-render for ${item.name}.`);
+    console.log(`handleRename: setIsRenaming(true) was called. Expecting re-render for ${item.name} with isRenaming = true.`);
   };
 
   const handleDelete = () => {
@@ -115,10 +111,11 @@ function TreeNode({
   };
 
   const handleRenameSubmit = () => {
-    if (renameValue.trim() && renameValue.trim() !== item.name) {
-      onRename(currentPath, renameValue.trim());
-    }
-    setIsRenaming(false);
+    console.log(`handleRenameSubmit called for ${item.name}. value: ${renameValue}. Normally would call onRename and setIsRenaming(false).`);
+    // if (renameValue.trim() && renameValue.trim() !== item.name) {
+    //   onRename(currentPath, renameValue.trim());
+    // }
+    // setIsRenaming(false);
   };
 
   return (
@@ -154,13 +151,15 @@ function TreeNode({
                   onChange={(e) => setRenameValue(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleRenameSubmit();
+                      // handleRenameSubmit(); // Original call
+                      console.log(`Input KeyDown: Enter pressed for ${item.name}. Normally would call handleRenameSubmit().`);
                     } else if (e.key === "Escape") {
-                      setRenameValue(item.name); // Reset to original name
-                      setIsRenaming(false);
+                      setRenameValue(item.name); // Keep this to reset input text
+                      // setIsRenaming(false); // Original call
+                      console.log(`Input KeyDown: Escape pressed for ${item.name}. Normally would set isRenaming to false.`);
                     }
                   }}
-                  onBlur={handleRenameSubmit} // Call submit handler on blur
+                  // onBlur={handleRenameSubmit} // TEMPORARILY COMMENT THIS OUT - This should be from previous step
                   className="bg-gray-700 text-gray-100 text-sm p-0.5 border border-gray-600 rounded" // Basic styling
                   style={{ width: 'calc(100% - 20px)' }} // Adjust width as needed
                   autoFocus // Automatically focus the input
@@ -168,7 +167,6 @@ function TreeNode({
                     e.target.select();
                     console.log("Input field focused and text selected.");
                   }} // Select text on focus
-                  // onBlur={handleRenameSubmit} // TEMPORARILY COMMENT THIS OUT
                 />
               ) : (
                 <span className="truncate text-sm">{item.name}</span>

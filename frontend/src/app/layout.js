@@ -1,8 +1,7 @@
-'use client'
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from 'next-auth/react'
+// Removed: import { SessionProvider } from 'next-auth/react'
+import AuthProvider from '@/app/auth-provider'; // Added import
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +24,9 @@ export default function RootLayout({ children, session }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider session={session}>
+        <AuthProvider session={session}> {/* Changed to AuthProvider */}
           {children}
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

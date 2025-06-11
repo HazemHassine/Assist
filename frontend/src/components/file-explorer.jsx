@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronRight, ChevronDown, File, Folder, FolderOpen, MoreVertical, FilePlus, FolderPlus, Edit3, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,6 +23,8 @@ function TreeNode({
   onMove,
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(item.name);
   const paddingLeft = level * 16 + 8 // Original padding + 8 for base indent
   const currentPath = parentPath ? `${parentPath}/${item.name}` : item.name;
 
@@ -92,16 +94,21 @@ function TreeNode({
   };
 
   const handleRename = () => {
-    const newName = prompt(`Enter new name for ${item.name}:`, item.name);
-    if (newName && newName !== item.name) {
-      onRename(currentPath, newName);
-    }
+    setRenameValue(item.name); // Reset input value to current name
+    setIsRenaming(true);
   };
 
   const handleDelete = () => {
     if (confirm(`Are you sure you want to delete "${item.name}"? This action cannot be undone.`)) {
       onDelete(currentPath);
     }
+  };
+
+  const handleRenameSubmit = () => {
+    if (renameValue.trim() && renameValue.trim() !== item.name) {
+      onRename(currentPath, renameValue.trim());
+    }
+    setIsRenaming(false);
   };
 
   return (
@@ -130,7 +137,28 @@ function TreeNode({
                 </>
               )}
               {item.type === "file" && <File className="w-4 h-4 flex-shrink-0 text-gray-400" />}
-              <span className="truncate text-sm">{item.name}</span>
+              {isRenaming ? (
+                <input
+                  type="text"
+                  value={renameValue}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleRenameSubmit();
+                    } else if (e.key === "Escape") {
+                      setRenameValue(item.name); // Reset to original name
+                      setIsRenaming(false);
+                    }
+                  }}
+                  onBlur={handleRenameSubmit} // Call submit handler on blur
+                  className="bg-gray-700 text-gray-100 text-sm p-0.5 border border-gray-600 rounded" // Basic styling
+                  style={{ width: 'calc(100% - 20px)' }} // Adjust width as needed
+                  autoFocus // Automatically focus the input
+                  onFocus={(e) => e.target.select()} // Select text on focus
+                />
+              ) : (
+                <span className="truncate text-sm">{item.name}</span>
+              )}
             </div>
             {/* Optional: Add a MoreVertical icon for discoverability of context menu, though right-click is standard */}
             {/* <MoreVertical className="w-4 h-4 ml-auto text-gray-500" /> */}

@@ -98,12 +98,14 @@ function TreeNode({
   };
 
   const handleRename = () => {
-    // ADD THIS LOG:
-    console.log(`handleRename called for item: ${item.name}`);
+    console.log(`handleRename called for item: ${item.name}. Current isRenaming: ${isRenaming}`);
     setRenameValue(item.name);
     setIsRenaming(true);
-    // ADD THIS LOG:
-    console.log(`handleRename: setIsRenaming(true) called. isRenaming should become true for ${item.name}`);
+    // Use a callback in setIsRenaming to log the state *after* it's set.
+    // Note: This direct log after setIsRenaming might not show the updated state immediately
+    // due to React's asynchronous state updates. A useEffect would be better for post-update logging,
+    // but for now, this is a simple check.
+    console.log(`handleRename: setIsRenaming(true) was called. Expecting re-render for ${item.name}.`);
   };
 
   const handleDelete = () => {
@@ -181,9 +183,8 @@ function TreeNode({
           </ContextMenuItem>
           <ContextMenuItem
             onClick={() => {
-              console.log("Rename ContextMenuItem clicked directly!");
-              // We'll call handleRename manually after this log if it works.
-              // handleRename();
+              console.log("Rename ContextMenuItem clicked directly! Now calling handleRename...");
+              handleRename(); // UNCOMMENT THIS LINE
             }}
             className="hover:bg-gray-700"
           >

@@ -110,11 +110,14 @@ function TreeNode({
   };
 
   const handleRenameSubmit = () => {
-    console.log(`handleRenameSubmit called for ${item.name}. value: ${renameValue}. Normally would call onRename and setIsRenaming(false).`);
-    // if (renameValue.trim() && renameValue.trim() !== item.name) {
-    //   onRename(currentPath, renameValue.trim());
-    // }
-    // setIsRenaming(false);
+    console.log(`handleRenameSubmit ACTUALLY RUNNING for ${item.name}. Current renameValue: "${renameValue}"`);
+    if (renameValue.trim() && renameValue.trim() !== item.name) {
+      console.log(`Calling onRename with path: "${currentPath}" and new name: "${renameValue.trim()}"`);
+      onRename(currentPath, renameValue.trim()); // RESTORE THIS
+    } else {
+      console.log(`Rename condition not met: renameValue (trimmed): "${renameValue.trim()}", item.name: "${item.name}"`);
+    }
+    setIsRenaming(false); // RESTORE THIS
   };
 
   return (
@@ -147,15 +150,18 @@ function TreeNode({
                 <input
                   type="text"
                   value={renameValue}
-                  onChange={(e) => setRenameValue(e.target.value)}
+                  onChange={(e) => {
+                    console.log(`Input onChange: old value: "${renameValue}", new value from input: "${e.target.value}"`);
+                    setRenameValue(e.target.value);
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      // handleRenameSubmit(); // Original call
-                      console.log(`Input KeyDown: Enter pressed for ${item.name}. Normally would call handleRenameSubmit().`);
+                      console.log(`Input KeyDown: Enter pressed for ${item.name}. Calling handleRenameSubmit().`);
+                      handleRenameSubmit(); // RESTORE THIS
                     } else if (e.key === "Escape") {
                       console.log(`Input KeyDown: Escape pressed for ${item.name}. Resetting value and closing input.`);
                       setRenameValue(item.name);
-                      setIsRenaming(false); // RESTORE THIS
+                      setIsRenaming(false);
                     }
                   }}
                   // onBlur={handleRenameSubmit} // TEMPORARILY COMMENT THIS OUT - This should be from previous step

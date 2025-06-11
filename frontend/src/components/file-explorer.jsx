@@ -105,9 +105,8 @@ function TreeNode({
   };
 
   const handleDelete = () => {
-    if (confirm(`Are you sure you want to delete "${item.name}"? This action cannot be undone.`)) {
-      onDelete(currentPath);
-    }
+    onDelete(currentPath); // Directly call onDelete
+    console.log(`handleDelete: Deleting ${currentPath} without confirmation.`); // Optional: for feedback
   };
 
   const handleRenameSubmit = () => {
@@ -136,7 +135,7 @@ function TreeNode({
             onDragLeave={handleDragLeave} // For visual cues
             onDrop={handleDrop} // Handle the drop
           >
-            <div className="flex items-center gap-2 min-w-0 flex-1 pointer-events-none"> {/* pointer-events-none for children to ensure button gets drag events */}
+            <div className={`flex items-center gap-2 min-w-0 flex-1 ${isRenaming ? '' : 'pointer-events-none'}`}> {/* pointer-events-none for children to ensure button gets drag events */}
               {item.type === "directory" && (
                 <>
                   {isExpanded ? <ChevronDown className="w-4 h-4 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 flex-shrink-0" />}
@@ -154,9 +153,9 @@ function TreeNode({
                       // handleRenameSubmit(); // Original call
                       console.log(`Input KeyDown: Enter pressed for ${item.name}. Normally would call handleRenameSubmit().`);
                     } else if (e.key === "Escape") {
-                      setRenameValue(item.name); // Keep this to reset input text
-                      // setIsRenaming(false); // Original call
-                      console.log(`Input KeyDown: Escape pressed for ${item.name}. Normally would set isRenaming to false.`);
+                      console.log(`Input KeyDown: Escape pressed for ${item.name}. Resetting value and closing input.`);
+                      setRenameValue(item.name);
+                      setIsRenaming(false); // RESTORE THIS
                     }
                   }}
                   // onBlur={handleRenameSubmit} // TEMPORARILY COMMENT THIS OUT - This should be from previous step

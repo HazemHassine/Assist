@@ -164,7 +164,7 @@ function TreeNode({
                       setIsRenaming(false);
                     }
                   }}
-                  onBlur={handleRenameSubmit} // RESTORE THIS
+                  // onBlur={handleRenameSubmit} // COMMENT THIS OUT AGAIN
                   className="bg-gray-700 text-gray-100 text-sm p-0.5 border border-gray-600 rounded" // Basic styling
                   style={{ width: 'calc(100% - 20px)' }} // Adjust width as needed
                   autoFocus // Automatically focus the input

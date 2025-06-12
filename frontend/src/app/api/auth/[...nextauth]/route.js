@@ -28,7 +28,13 @@ export const authOptions = {
         // For example, using the MongoDB client:
         const client = await clientPromise
         const usersCollection = client.db().collection('users')
-        const user = await usersCollection.findOne({ email: credentials.email })
+
+        const lowercasedEmail = credentials.email ? credentials.email.toLowerCase() : null;
+        if (!lowercasedEmail) {
+          // This case should ideally not be reached if NextAuth form validation is in place
+          return null;
+        }
+        const user = await usersCollection.findOne({ email: lowercasedEmail })
 
         if (user && bcrypt.compareSync(credentials.password, user.password)) {
           // Any object returned will be saved in `user` property of the JWT

@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from 'next/navigation'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { useState, useCallback, useEffect, version } from "react"
 import { FileExplorer } from "@/components/file-explorer"
 import FileEditor from "@/components/file-editor"
@@ -21,6 +23,8 @@ export default function Home() {
   const [currentFileName, setCurrentFileName] = useState("")
   const [content, setContent] = useState("")
   const [isFileExplorerVisible, setIsFileExplorerVisible] = useState(true)
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [isChatPanelOpen, setIsChatPanelOpen] = useState(false)
 
   const loadFiles = async () => {
@@ -219,6 +223,23 @@ export default function Home() {
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
 
+  useEffect(() => {
+    // If session is not loading and user is not authenticated, redirect to sign-in
+    if (status !== 'loading' && !session) {
+      router.push('/auth/signin')
+    }
+  }, [session, status, router])
+
+  // If session is loading or user is not authenticated (and redirect hasn't happened yet),
+  // you might want to show a loading indicator or null to prevent content flash
+  if (status === 'loading' || !session) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        {status === 'loading' ? 'Loading session...' : 'Redirecting to sign in...'}
+      </div>
+    ); // Or a more sophisticated loading component
+  }
+
   return (
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col">
       <ToastContainer />
@@ -246,6 +267,20 @@ export default function Home() {
             <FolderOpen className="w-4 h-4 mr-2" />
             Reload Files
           </Button>
+          {/* Auth Buttons */}
+          {status === 'loading' ? (
+            <Button variant="outline" className="bg-gray-900 border-gray-700 hover:bg-gray-800" disabled>
+              Loading...
+            </Button>
+          ) : session ? (
+            <Button onClick={() => signOut()} variant="outline" className="bg-red-700 border-red-600 hover:bg-red-800 text-white">
+              Sign Out
+            </Button>
+          ) : (
+            <Button onClick={() => signIn()} variant="outline" className="bg-blue-600 border-blue-500 hover:bg-blue-700 text-white">
+              Sign In
+            </Button>
+          )}
           <Button onClick={() => setIsChatPanelOpen(!isChatPanelOpen)} variant="outline" className="bg-gray-900 border-gray-700 hover:bg-gray-800">
             <MessageSquare className="w-4 h-4" />
           </Button>

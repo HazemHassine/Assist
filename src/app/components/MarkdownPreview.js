@@ -1,5 +1,16 @@
 import React from "react";
 
+import { 
+  FileText, 
+  Folder, 
+  Settings, 
+  ChevronLeft, 
+  ChevronRight, 
+  Bot,
+  X,
+  Send,
+  User
+} from 'lucide-react';
 
 const MarkdownPreview = ({ content }) => {
   const renderMarkdown = (text) => {

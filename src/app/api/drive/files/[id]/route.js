@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('google_access_token');
 

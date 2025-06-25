@@ -3,9 +3,8 @@ import { FileText, Zap, Cloud, Settings } from 'lucide-react';
 
 const ActivityBar = ({ collapsed, activeTab, onTabSelect }) => {
     const tabs = [
-        { id: 'explorer', icon: FileText, label: 'Explorer' },
-        { id: 'quick', icon: Zap, label: 'Quick Actions' },
         { id: 'sync', icon: Cloud, label: 'Drive Sync' },
+        { id: 'quick', icon: Zap, label: 'Quick Actions' },
     ];
 
     return (

@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import ActivityBar from './ActivityBar';
-import FileExplorer from './FileExplorer';
 import QuickActions from './QuickActions';
 import DriveSync from './DriveSync';
 import SettingsPanel from './SettingsPanel';
@@ -15,7 +14,7 @@ export default function HomeClient() {
   const [openFiles, setOpenFiles] = useState([{ id: 1, name: 'README.md', type: 'file' }]);
   const [fileContents, setFileContents] = useState({ 1: '# Welcome to Assist...' });
   const [currentFileId, setCurrentFileId] = useState(1);
-  const [activeTab, setActiveTab] = useState('explorer');
+  const [activeTab, setActiveTab] = useState('sync');
 
   const collapsed = (id) => {
     if (activeTab === id) {
@@ -29,6 +28,25 @@ export default function HomeClient() {
     setOpenFiles(prev => prev.find(f => f.id === file.id) ? prev : [...prev, file]);
     setCurrentFileId(file.id);
     setFileContents(prev => ({ ...prev, [file.id]: prev[file.id] ?? '' }));
+  };
+
+  const openDriveFile = (driveFile) => {
+    // Check if file is already open
+    const existingFile = openFiles.find(f => f.id === driveFile.id);
+    if (existingFile) {
+      setCurrentFileId(driveFile.id);
+      return;
+    }
+
+    // Add the file to open files
+    setOpenFiles(prev => [...prev, driveFile]);
+    setCurrentFileId(driveFile.id);
+    
+    // Set the file content
+    setFileContents(prev => ({ 
+      ...prev, 
+      [driveFile.id]: driveFile.content || '' 
+    }));
   };
 
   const closeFile = (id) => {
@@ -49,15 +67,8 @@ export default function HomeClient() {
     <div className="h-screen flex overflow-hidden text-zinc-100 bg-gradient-to-br from-zinc-900 to-zinc-800">
       <ActivityBar collapsed={collapsed} activeTab={activeTab} onTabSelect={setActiveTab} />
 
-      {activeTab === 'explorer' && (
-        <FileExplorer
-          collapsed={() => collapsed('explorer')}
-          activeFileId={currentFileId}
-          onFileSelect={openFile}
-        />
-      )}
       {activeTab === 'quick' && <QuickActions collapsed={() => collapsed('quick')} />}
-      {activeTab === 'sync' && <DriveSync collapsed={() => collapsed('sync')} />}
+      {activeTab === 'sync' && <DriveSync collapsed={() => collapsed('sync')} onFileOpen={openDriveFile} />}
       {activeTab === 'settings' && <SettingsPanel collapsed={() => collapsed('settings')} />}
 
       <div className="flex-1 flex flex-col min-w-0">

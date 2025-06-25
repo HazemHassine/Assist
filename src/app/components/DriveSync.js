@@ -250,11 +250,12 @@ export default function DriveSync({ collapsed, onFileOpen }) {
     const supportedTypes = [
       'text/plain',
       'text/markdown',
-      'application/vnd.google-apps.document'
+      'application/vnd.google-apps.document',
+      'application/pdf'
     ];
     
     if (!supportedTypes.includes(file.mimeType)) {
-      alert(`Cannot open file type: ${file.mimeType}\n\nSupported types:\n- Text files (.txt)\n- Markdown files (.md)\n- Google Docs`);
+      alert(`Cannot open file type: ${file.mimeType}\n\nSupported types:\n- Text files (.txt)\n- Markdown files (.md)\n- Google Docs\n- PDF files (.pdf)`);
       return;
     }
 
@@ -264,13 +265,23 @@ export default function DriveSync({ collapsed, onFileOpen }) {
       const data = await response.json();
       
       if (response.ok) {
+        let cleanedContent = data.content;
+        // Clean up excessive empty lines only for text/markdown/doc
+        if (
+          file.mimeType === 'text/plain' ||
+          file.mimeType === 'text/markdown' ||
+          file.mimeType === 'application/vnd.google-apps.document'
+        ) {
+          cleanedContent = cleanExcessiveEmptyLines(data.content);
+        }
         // Create a file object for the editor
         const editorFile = {
           id: `drive-${file.id}`,
           name: file.name,
           type: 'file',
-          content: data.content,
-          path: file.path
+          content: cleanedContent,
+          path: file.path,
+          mimeType: file.mimeType
         };
         
         // Call the parent's onFileOpen function
@@ -283,6 +294,35 @@ export default function DriveSync({ collapsed, onFileOpen }) {
     } catch (error) {
       setError('Failed to load file content');
     }
+  };
+
+  // Function to clean up excessive empty lines
+  const cleanExcessiveEmptyLines = (content) => {
+    if (!content) return content;
+    
+    // Split content into lines
+    const lines = content.split('\n');
+    const cleanedLines = [];
+    let consecutiveEmptyLines = 0;
+    
+    for (const line of lines) {
+      const isEmpty = line.trim() === '';
+      
+      if (isEmpty) {
+        consecutiveEmptyLines++;
+        // Only add empty line if we haven't exceeded the limit (2)
+        if (consecutiveEmptyLines <= 2) {
+          cleanedLines.push(line);
+        }
+        // If we exceed 2, we skip adding this empty line
+      } else {
+        // Reset counter when we encounter a non-empty line
+        consecutiveEmptyLines = 0;
+        cleanedLines.push(line);
+      }
+    }
+    
+    return cleanedLines.join('\n');
   };
 
   return (

@@ -8,6 +8,7 @@ import EditorHeader from './EditorHeader';
 import MarkdownEditor from './MarkdownEditor';
 import MarkdownPreview from './MarkdownPreview';
 import AIChat from './AIChat';
+import PDFPreview from './PDFPreview';
 
 export default function HomeClient() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function HomeClient() {
     setFileContents(prev => ({ ...prev, [currentFileId]: content }));
   };
 
+  const currentFile = openFiles.find(f => f.id === currentFileId);
   const currentContent = fileContents[currentFileId] || '';
 
   return (
@@ -80,9 +82,15 @@ export default function HomeClient() {
           onAIToggle={() => setAiChatOpen(prev => !prev)}
           aiOpen={aiChatOpen}
         />
-        <div className="flex-1 flex">
-          <MarkdownEditor content={currentContent} onChange={updateContent} />
-          <MarkdownPreview content={currentContent} />
+        <div className="flex-1 flex min-h-0">
+          {currentFile && currentFile.mimeType === 'application/pdf' ? (
+            <PDFPreview content={currentContent} name={currentFile.name} />
+          ) : (
+            <>
+              <MarkdownEditor content={currentContent} onChange={updateContent} />
+              <MarkdownPreview content={currentContent} />
+            </>
+          )}
         </div>
       </div>
 

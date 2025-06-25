@@ -25,10 +25,13 @@ async function fetchFolderContents(drive, folderId, folderName = '') {
           path: folderName ? `${folderName}/${file.name}` : file.name,
           children: subItems
         });
-      } else if (file.mimeType === 'text/plain' || 
-                 file.mimeType === 'text/markdown' || 
-                 file.mimeType === 'application/vnd.google-apps.document') {
-        // It's a supported file type
+      } else if (
+        file.mimeType === 'text/plain' || 
+        file.mimeType === 'text/markdown' || 
+        file.mimeType === 'application/vnd.google-apps.document' ||
+        file.mimeType === 'application/pdf'
+      ) {
+        // It's a supported file type (including PDF)
         items.push({
           ...file,
           type: 'file',

@@ -10,18 +10,32 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "bcryptjs": "^3.0.2",
+    "googleapis": "^150.0.1",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.22",
     "lucide-react": "^0.523.0",
     "monaco-editor": "^0.52.2",
+    "mongoose": "^8.16.0",
     "next": "15.3.4",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-monaco-editor": "^0.58.0",
-    "remark-gfm": "^4.0.1"
+    "rehype-highlight": "^7.0.2",
+    "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-emoji": "^5.0.1",
+    "remark-footnotes": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.16",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "tailwindcss": "^4"

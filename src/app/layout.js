@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import 'highlight.js/styles/github-dark.css';
 import "./globals.css";
+import 'katex/dist/katex.min.css';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

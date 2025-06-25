@@ -1,80 +1,66 @@
 'use client';
 import React, { useState } from 'react';
-import Sidebar from './components/Sidebar';
+import ActivityBar from './components/ActivityBar';
+import FileExplorer from './components/FileExplorer';
+import QuickActions from './components/QuickActions';
+import DriveSync from './components/DriveSync';
+import SettingsPanel from './components/SettingsPanel';
 import EditorHeader from './components/EditorHeader';
 import MarkdownEditor from './components/MarkdownEditor';
 import MarkdownPreview from './components/MarkdownPreview';
 import AIChat from './components/AIChat';
 
 export default function Home() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [activeFile, setActiveFile] = useState({ id: 1, name: 'README.md', type: 'file' });
-  const [markdownContent, setMarkdownContent] = useState(`# Welcome to DocuMind
+  const [activeTab, setActiveTab] = useState('explorer');
+  const [markdownContent, setMarkdownContent] = useState('# Welcome to Assist...');
 
-This is a powerful markdown editor with integrated AI assistance.
+const collapsed = (id) => {
+  if (activeTab === id) {
+    // clicked the same tab → collapse
+    setActiveTab('');
+  } else {
+    // clicked a different (or no) tab → open that one
+    setActiveTab(id);
+  }
+};
 
-## Features
-
-- **Real-time Preview**: See your markdown rendered instantly
-- **AI Integration**: Ask questions about your documents
-- **File Management**: Organize your documents easily
-- **Syntax Highlighting**: Clean, readable code blocks
-
-## Getting Started
-
-Simply start typing your markdown content. The preview will update automatically.
-
-You can use the AI assistant to:
-- Get help with markdown syntax
-- Improve your writing
-- Generate content ideas
-- Review and edit your documents
-
-\`\`\`javascript
-// Example code block
-function greetUser(name) {
-    return \`Hello, \${name}! Welcome to DocuMind.\`;
-}
-\`\`\`
-
-Happy writing! 🚀`);
-
-  const user = {
-    name: 'John Doe',
-    email: 'john@example.com'
-  };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 text-zinc-100 flex overflow-hidden">
-      <Sidebar
-        isCollapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        activeFile={activeFile}
-        onFileSelect={setActiveFile}
-        user={user}
+    <div className="h-screen flex overflow-hidden text-zinc-100 bg-gradient-to-br from-zinc-900 to-zinc-800">
+      <ActivityBar
+        collapsed={collapsed}
+        activeTab={activeTab}
+        onTabSelect={setActiveTab}
       />
+  
+      {/* Dynamic panels */}
+      {activeTab === 'explorer' && (
+        <FileExplorer
+          collapsed={collapsed}
+          activeFile={activeFile}
+          onFileSelect={setActiveFile}
+        />
+      )}
+      {activeTab === 'quick' && <QuickActions collapsed={collapsed}/>}
+      {activeTab === 'sync' && <DriveSync collapsed={collapsed}/>}
+      {activeTab === 'settings' && <SettingsPanel collapsed={collapsed}/>}
 
+      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         <EditorHeader
           activeFile={activeFile}
-          onAIToggle={() => setAiChatOpen(!aiChatOpen)}
+          onAIToggle={() => setAiChatOpen(prev => !prev)}
           aiOpen={aiChatOpen}
         />
-
         <div className="flex-1 flex">
           <MarkdownEditor content={markdownContent} onChange={setMarkdownContent} />
           <MarkdownPreview content={markdownContent} />
         </div>
       </div>
 
-      {aiChatOpen && (
-        <AIChat
-          isOpen={aiChatOpen}
-          onClose={() => setAiChatOpen(false)}
-          currentContent={markdownContent}
-        />
-      )}
+      {aiChatOpen && <AIChat isOpen={aiChatOpen} onClose={() => setAiChatOpen(false)} currentContent={markdownContent} />}
     </div>
   );
 }

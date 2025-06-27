@@ -153,7 +153,20 @@ export default function HomeClient() {
         </div>
       </div>
 
-      {aiChatOpen && <AIChat isOpen={aiChatOpen} onClose={() => setAiChatOpen(false)} currentContent={currentContent} />}
+      {/* AI Chat as overlay */}
+      {aiChatOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={() => setAiChatOpen(false)}
+          />
+          {/* AI Chat Panel */}
+          <div className="fixed top-0 right-0 h-full z-50">
+            <AIChat isOpen={aiChatOpen} onClose={() => setAiChatOpen(false)} currentContent={currentContent} />
+          </div>
+        </>
+      )}
     </div>
   );
 } 

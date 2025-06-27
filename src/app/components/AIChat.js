@@ -55,7 +55,7 @@ const AIChat = ({ isOpen, onClose, currentContent }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="w-96 h-full bg-zinc-900/98 backdrop-blur-xl border-l border-zinc-700/50 flex flex-col">
+    <div className="w-96 h-full bg-zinc-900/98 backdrop-blur-xl border-l border-zinc-700/50 flex flex-col shadow-2xl">
       <div className="p-5 border-b border-zinc-700/50 flex items-center gap-3">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
           AI

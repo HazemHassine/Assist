@@ -1,10 +1,11 @@
 import React from 'react';
-import { FileText, Zap, Cloud, Settings } from 'lucide-react';
+import { FileText, Zap, Cloud, Settings, Network } from 'lucide-react';
 
 const ActivityBar = ({ collapsed, activeTab, onTabSelect }) => {
     const tabs = [
         { id: 'sync', icon: Cloud, label: 'Drive Sync' },
         { id: 'quick', icon: Zap, label: 'Quick Actions' },
+        { id: 'graph', icon: Network, label: 'Graph' },
     ];
 
     return (

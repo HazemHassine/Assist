@@ -4,6 +4,7 @@ import ActivityBar from './ActivityBar';
 import QuickActions from './QuickActions';
 import DriveSync from './DriveSync';
 import SettingsPanel from './SettingsPanel';
+import Graph from './Graph';
 import EditorHeader from './EditorHeader';
 import MarkdownEditor from './MarkdownEditor';
 import MarkdownPreview from './MarkdownPreview';
@@ -43,6 +44,7 @@ export default function HomeClient() {
   // Memoize collapsed callbacks to prevent unnecessary rerenders
   const collapsedQuick = useCallback(() => collapsed('quick'), []);
   const collapsedSync = useCallback(() => collapsed('sync'), []);
+  const collapsedGraph = useCallback(() => collapsed('graph'), []);
   const collapsedSettings = useCallback(() => collapsed('settings'), []);
 
   const openFile = (file) => {
@@ -108,8 +110,9 @@ export default function HomeClient() {
   const sidebarPanels = useMemo(() => ({
     quick: activeTab === 'quick' && <QuickActions collapsed={collapsedQuick} />,
     sync: activeTab === 'sync' && <DriveSync collapsed={collapsedSync} onFileOpen={openDriveFile} openFiles={openFiles} />,
+    graph: activeTab === 'graph' && <Graph collapsed={collapsedGraph} />,
     settings: activeTab === 'settings' && <SettingsPanel collapsed={collapsedSettings} />
-  }), [activeTab, collapsedQuick, collapsedSync, collapsedSettings, openDriveFile, openFiles]);
+  }), [activeTab, collapsedQuick, collapsedSync, collapsedGraph, collapsedSettings, openDriveFile, openFiles]);
 
   // Memoize the editor content to prevent rerenders
   const editorContent = useMemo(() => {
@@ -137,6 +140,7 @@ export default function HomeClient() {
 
       {sidebarPanels.quick}
       {sidebarPanels.sync}
+      {sidebarPanels.graph}
       {sidebarPanels.settings}
 
       <div className="flex-1 flex flex-col min-w-0">

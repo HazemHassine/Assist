@@ -52,7 +52,7 @@ export default function PDFPreview({ content, name }) {
             Failed to load PDF
           </div>
         )}
-      </div>
+      </div>  
     </div>
   );
 } 

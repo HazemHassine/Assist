@@ -91,8 +91,9 @@ const FolderItem = ({ item, level = 0, onDownload, onFileOpen }) => {
  * Props:
  * - collapsed: callback to toggle the panel
  * - onFileOpen: callback to open a file in the editor
+ * - openFiles: array of currently open files to avoid duplicate API requests
  */
-export default function DriveSync({ collapsed, onFileOpen }) {
+export default function DriveSync({ collapsed, onFileOpen, openFiles = [] }) {
   const [folderStructure, setFolderStructure] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -259,8 +260,22 @@ export default function DriveSync({ collapsed, onFileOpen }) {
       return;
     }
 
+    // Check if file is already open by comparing IDs
+    const fileId = `drive-${file.id}`;
+    const isAlreadyOpen = openFiles.some(openFile => openFile.id === fileId);
+    
+    if (isAlreadyOpen) {
+      // File is already open, just call onFileOpen to switch to it
+      // The parent component will handle switching to the already-open file
+      const existingFile = openFiles.find(openFile => openFile.id === fileId);
+      if (onFileOpen) {
+        onFileOpen(existingFile);
+      }
+      return;
+    }
+
     try {
-      // Fetch file content
+      // Fetch file content only for newly opened files
       const response = await fetch(`/api/drive/files/${file.id}`);
       const data = await response.json();
       
@@ -276,7 +291,7 @@ export default function DriveSync({ collapsed, onFileOpen }) {
         }
         // Create a file object for the editor
         const editorFile = {
-          id: `drive-${file.id}`,
+          id: fileId,
           name: file.name,
           type: 'file',
           content: cleanedContent,

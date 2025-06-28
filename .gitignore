@@ -32,7 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-.env.example
 
 # vercel
 .vercel
@@ -44,5 +43,6 @@ mm
 
 
 python_service/venv
+python_service/data
 python_service/__pycache__
 python_service/services/__pycache__

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Python Document Processing Service
+  python-service:
+    build: ./python_service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./python_service:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Next.js Application (existing)
+  nextjs-app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PYTHON_SERVICE_URL=http://python-service:8000
+    depends_on:
+      python-service:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+networks:
+  default:
+    name: assist2-network 

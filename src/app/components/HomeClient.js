@@ -36,18 +36,22 @@ export default function HomeClient() {
   const [graphFullScreen, setGraphFullScreen] = useState(false);
 
   const collapsed = (id) => {
+    console.log('HomeClient: collapsed called with id:', id);
+    console.log('HomeClient: current activeTab:', activeTab);
     if (activeTab === id) {
+      console.log('HomeClient: closing panel for id:', id);
       setActiveTab('');
     } else {
+      console.log('HomeClient: opening panel for id:', id);
       setActiveTab(id);
     }
   };
 
   // Memoize collapsed callbacks to prevent unnecessary rerenders
-  const collapsedQuick = useCallback(() => collapsed('quick'), []);
-  const collapsedSync = useCallback(() => collapsed('sync'), []);
-  const collapsedGraph = useCallback(() => collapsed('graph'), []);
-  const collapsedSettings = useCallback(() => collapsed('settings'), []);
+  const collapsedQuick = useCallback(() => collapsed('quick'), [collapsed]);
+  const collapsedSync = useCallback(() => collapsed('sync'), [collapsed]);
+  const collapsedGraph = useCallback(() => collapsed('graph'), [collapsed]);
+  const collapsedSettings = useCallback(() => collapsed('settings'), [collapsed]);
 
   const openFile = (file) => {
     setOpenFiles(prev => prev.find(f => f.id === file.id) ? prev : [...prev, file]);

@@ -47,6 +47,12 @@ const Graph = ({ collapsed, onFullScreen }) => {
     }
   };
 
+  const handleCollapse = () => {
+    if (typeof collapsed === 'function') {
+      collapsed();
+    }
+  };
+
   const getFilteredData = () => {
     if (filterType === 'all') return graphData;
     
@@ -88,7 +94,7 @@ const Graph = ({ collapsed, onFullScreen }) => {
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           </button>
           <button 
-            onClick={collapsed} 
+            onClick={handleCollapse} 
             className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-700/50 rounded-lg transition-colors"
           >
             <ChevronLeft size={20} />

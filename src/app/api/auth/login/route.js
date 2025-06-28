@@ -1,6 +1,7 @@
 import dbConnect from '../../../../lib/dbConnect';
 import User from '../../../../models/User';
 import bcrypt from 'bcryptjs';
+import { createSession } from '../../../../lib/serverAuth';
 
 export async function POST(request) {
   try {
@@ -27,8 +28,14 @@ export async function POST(request) {
     }
 
     console.log('User logged in successfully:', email);
-    // You may want to set a cookie or return a token here
-    return new Response(JSON.stringify({ message: 'Login successful' }), { status: 200 });
+    
+    // Create session
+    await createSession(user._id.toString(), user.email);
+    
+    return new Response(JSON.stringify({ 
+      message: 'Login successful',
+      user: { id: user._id.toString(), email: user.email }
+    }), { status: 200 });
   } catch (error) {
     console.log('Login error:', error);
     return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });

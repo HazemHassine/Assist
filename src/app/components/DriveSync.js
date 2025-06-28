@@ -289,6 +289,41 @@ export default function DriveSync({ collapsed, onFileOpen, openFiles = [] }) {
         ) {
           cleanedContent = cleanExcessiveEmptyLines(data.content);
         }
+
+        // For PDFs, automatically process them to create summaries and extract metadata
+        if (file.mimeType === 'application/pdf') {
+          try {
+            console.log(`Processing PDF: ${file.name}`);
+            const processResponse = await fetch('/api/documents/process', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                fileId: fileId,
+                content: data.content, // Base64 encoded PDF content
+                mimeType: file.mimeType,
+                filename: file.name,
+                filePath: file.path || file.name // Include file path for graph analysis
+              }),
+            });
+
+            if (processResponse.ok) {
+              const processResult = await processResponse.json();
+              console.log(`PDF processed successfully: ${file.name}`, processResult);
+              
+              // Add processing metadata to the file object
+              file.processedData = processResult.data;
+              file.summary = processResult.data.summary;
+              file.metadata = processResult.data.metadata;
+            } else {
+              console.warn(`Failed to process PDF: ${file.name}`);
+            }
+          } catch (processError) {
+            console.error(`Error processing PDF ${file.name}:`, processError);
+          }
+        }
+
         // Create a file object for the editor
         const editorFile = {
           id: fileId,
@@ -296,7 +331,11 @@ export default function DriveSync({ collapsed, onFileOpen, openFiles = [] }) {
           type: 'file',
           content: cleanedContent,
           path: file.path,
-          mimeType: file.mimeType
+          mimeType: file.mimeType,
+          // Include processing data for PDFs
+          processedData: file.processedData,
+          summary: file.summary,
+          metadata: file.metadata
         };
         
         // Call the parent's onFileOpen function

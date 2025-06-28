@@ -31,6 +31,11 @@ class ProcessRequest(BaseModel):
     mime_type: str
     filename: str
 
+class SummarizeRequest(BaseModel):
+    text: str
+    max_length: int = 200
+    filename: Optional[str] = None
+
 class ProcessResponse(BaseModel):
     file_id: str
     text_content: str
@@ -50,6 +55,28 @@ async def health_check():
         "embedding_service": "ready",
         "graph_builder": "ready"
     }}
+
+@app.post("/summarize")
+async def summarize_text(request: SummarizeRequest):
+    """Generate a summary of the provided text"""
+    try:
+        # Simple extractive summarization - take first few sentences
+        sentences = request.text.split('. ')
+        summary = '. '.join(sentences[:3]) + '.'
+        
+        # Truncate if too long
+        if len(summary) > request.max_length:
+            summary = summary[:request.max_length-3] + '...'
+        
+        return {
+            "summary": summary,
+            "original_length": len(request.text),
+            "summary_length": len(summary),
+            "filename": request.filename
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Summarization failed: {str(e)}")
 
 @app.post("/process-pdf", response_model=ProcessResponse)
 async def process_pdf(request: ProcessRequest):

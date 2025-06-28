@@ -5,6 +5,7 @@ import QuickActions from './QuickActions';
 import DriveSync from './DriveSync';
 import SettingsPanel from './SettingsPanel';
 import Graph from './Graph';
+import GraphFullScreen from './GraphFullScreen';
 import EditorHeader from './EditorHeader';
 import MarkdownEditor from './MarkdownEditor';
 import MarkdownPreview from './MarkdownPreview';
@@ -12,10 +13,10 @@ import AIChat from './AIChat';
 import PDFPreview from './PDFPreview';
 
 // Memoized editor components to prevent unnecessary rerenders
-const MemoizedPDFEditor = React.memo(({ content, pdfContent, fileName }) => (
+const MemoizedPDFEditor = React.memo(({ content, pdfContent, fileName, summary, metadata }) => (
   <>
     <MarkdownEditor content={content} />
-    <PDFPreview content={pdfContent} name={fileName} />
+    <PDFPreview content={pdfContent} name={fileName} summary={summary} metadata={metadata} />
   </>
 ));
 
@@ -32,6 +33,7 @@ export default function HomeClient() {
   const [fileContents, setFileContents] = useState({ 1: '# Welcome to Assist...' });
   const [currentFileId, setCurrentFileId] = useState(1);
   const [activeTab, setActiveTab] = useState('sync');
+  const [graphFullScreen, setGraphFullScreen] = useState(false);
 
   const collapsed = (id) => {
     if (activeTab === id) {
@@ -97,6 +99,10 @@ export default function HomeClient() {
     });
   };
 
+  const reorderTabs = (newFiles) => {
+    setOpenFiles(newFiles);
+  };
+
   const updateContent = (content) => {
     setFileContents(prev => ({ ...prev, [currentFileId]: content }));
   };
@@ -110,18 +116,27 @@ export default function HomeClient() {
   const sidebarPanels = useMemo(() => ({
     quick: activeTab === 'quick' && <QuickActions collapsed={collapsedQuick} />,
     sync: activeTab === 'sync' && <DriveSync collapsed={collapsedSync} onFileOpen={openDriveFile} openFiles={openFiles} />,
-    graph: activeTab === 'graph' && <Graph collapsed={collapsedGraph} />,
+    graph: activeTab === 'graph' && <Graph collapsed={collapsedGraph} onFullScreen={() => {
+      setGraphFullScreen(true);
+      setActiveTab(''); // Close the sidebar when entering full screen
+    }} />,
     settings: activeTab === 'settings' && <SettingsPanel collapsed={collapsedSettings} />
   }), [activeTab, collapsedQuick, collapsedSync, collapsedGraph, collapsedSettings, openDriveFile, openFiles]);
 
   // Memoize the editor content to prevent rerenders
   const editorContent = useMemo(() => {
+    if (graphFullScreen) {
+      return <GraphFullScreen onClose={() => setGraphFullScreen(false)} />;
+    }
+    
     if (currentFile && currentFile.mimeType === 'application/pdf') {
       return (
         <MemoizedPDFEditor 
           content={currentContent} 
           pdfContent={currentFile.content} 
-          fileName={currentFile.name} 
+          fileName={currentFile.name}
+          summary={currentFile.summary}
+          metadata={currentFile.metadata}
         />
       );
     } else {
@@ -132,7 +147,7 @@ export default function HomeClient() {
         />
       );
     }
-  }, [currentFile, currentContent, memoizedUpdateContent]);
+  }, [currentFile, currentContent, memoizedUpdateContent, graphFullScreen]);
 
   return (
     <div className="h-screen flex overflow-hidden text-zinc-100 bg-gradient-to-br from-zinc-900 to-zinc-800">
@@ -151,6 +166,8 @@ export default function HomeClient() {
           onCloseTab={closeFile}
           onAIToggle={() => setAiChatOpen(prev => !prev)}
           aiOpen={aiChatOpen}
+          onReorderTabs={reorderTabs}
+          graphFullScreen={graphFullScreen}
         />
         <div className="flex-1 flex min-h-0">
           {editorContent}
